@@ -15,11 +15,11 @@ class ZestApi {
 	 */
 	constructor(apiBaseURL, apiKey) {
 		if (notDefined(apiBaseURL)) {
-			throw 'API Base url is undefined or empty!';
+			throw Error('API Base url is undefined or empty!');
 		}
 
 		if (notDefined(apiKey)) {
-			throw 'API key is undefined or empty!';
+			throw Error('API key is undefined or empty!');
 		}
 
 		this._apiBaseURL = apiBaseURL;
@@ -56,11 +56,11 @@ class ZestApi {
 	async enquiries(subject, enquiry, status, method) {
 		// throw an exception if the base API url or the API key was not set.
 		if (notDefined(this._apiBaseURL)) {
-			throw 'API Base url is undefined or empty!';
+			throw new Error('API Base url is undefined or empty!');
 		}
 
 		if (notDefined(this._apiKey)) {
-			throw 'API key is undefined or empty!';
+			throw new Error('API key is undefined or empty!');
 		}
 
 		method = notDefined(method) ? 'get' : method;
