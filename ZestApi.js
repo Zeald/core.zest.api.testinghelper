@@ -2,16 +2,6 @@ const axios = require('axios');
 const xmlConverter = require('xml-js');
 const { notDefined } = require('./functions');
 
-const path = require('path');
-const dotenv = require('dotenv');
-
-const TEST_ENV_FILE_PATH = process.env.TEST_ENV_FILE ?
-	process.env.TEST_ENV_FILE : __dirname+'/../override/default/.env';
-
-dotenv.config({
-	path: path.resolve(TEST_ENV_FILE_PATH)
-});
-
 /**
  * Zest API helper class
  *
@@ -24,8 +14,16 @@ class ZestApi {
 	 * @param apiKey API / Application key
 	 */
 	constructor(apiBaseURL, apiKey) {
-		this._apiBaseURL = notDefined(apiBaseURL) ? process.env.API_BASE_URL : apiBaseURL;
-		this._apiKey = notDefined(apiKey) ? process.env.API_KEY : apiKey;
+		if (notDefined(apiBaseURL)) {
+			throw 'API Base url is undefined or empty!';
+		}
+
+		if (notDefined(apiKey)) {
+			throw 'API key is undefined or empty!';
+		}
+
+		this._apiBaseURL = apiBaseURL;
+		this._apiKey = apiKey;
 	}
 
 	/**
@@ -56,6 +54,15 @@ class ZestApi {
 	 * @returns {Promise<void>}
 	 */
 	async enquiries(subject, enquiry, status, method) {
+		// throw an exception if the base API url or the API key was not set.
+		if (notDefined(this._apiBaseURL)) {
+			throw 'API Base url is undefined or empty!';
+		}
+
+		if (notDefined(this._apiKey)) {
+			throw 'API key is undefined or empty!';
+		}
+
 		method = notDefined(method) ? 'get' : method;
 		status = notDefined(method) ? 'pending' : status;
 
