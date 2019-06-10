@@ -2,7 +2,7 @@
   "name": "core.zest.api.library",
   "version": "0.0.1",
   "description": "Zest API class helper",
-  "main": "zestapi.js",
+  "main": "zesthelpers.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
