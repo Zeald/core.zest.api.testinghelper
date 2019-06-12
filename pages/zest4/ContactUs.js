@@ -2,7 +2,7 @@ const { By } = require('selenium-webdriver');
 const reverseMd5 = require('reverse-md5');
 const { Page } = require('./Page');
 const { EnquiryReceiptPage } = require('./EnquiryReceiptPage');
-const { notDefined } = require('../helpers/functions');
+const { notDefined } = require('../../helpers/functions');
 
 /**
  * Contact us class
