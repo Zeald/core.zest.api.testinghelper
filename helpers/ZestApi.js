@@ -1,6 +1,6 @@
 const axios = require('axios');
 const xmlConverter = require('xml-js');
-const { notDefined } = require('./helpers/functions');
+const { notDefined } = require('./functions');
 
 /**
  * Zest API helper class
