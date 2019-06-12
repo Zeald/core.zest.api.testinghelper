@@ -1,4 +1,4 @@
-const { notDefined } = require('./functions');
+const { notDefined } = require('./helpers/functions');
 const { ZestApi } = require('./ZestApi');
 
 // export all modules here
