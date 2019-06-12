@@ -1,5 +1,5 @@
 const { By } = require('selenium-webdriver');
-const { notDefined } = require('../helpers/functions');
+const { notDefined } = require('../../helpers/functions');
 const { Page } = require('./Page');
 
 /**

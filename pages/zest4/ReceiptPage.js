@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { notDefined } = require('../helpers/functions');
+const { notDefined } = require('../../helpers/functions');
 const { Page } = require('./Page');
 
 /**

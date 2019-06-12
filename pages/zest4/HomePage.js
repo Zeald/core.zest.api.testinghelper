@@ -2,7 +2,7 @@ const { By } = require('selenium-webdriver');
 const { Page } = require('./Page');
 const { CheckoutPage } = require('./CheckoutPage');
 const { ContactUs } = require('./ContactUs');
-const { notDefined } = require('../helpers/functions');
+const { notDefined } = require('../../helpers/functions');
 
 /**
  * Home page class
