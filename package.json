@@ -1,15 +1,19 @@
 {
   "name": "zest-api-testinghelper",
-  "version": "0.1.1",
+  "version": "0.1.6",
   "description": "Zest API class helper",
   "main": "zesthelpers.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "eslint": "npm run eslint-pages && npm run eslint-helpers && npm run eslint-root",
+    "eslint-pages": "./node_modules/.bin/eslint pages/**/*.js",
+    "eslint-helpers": "./node_modules/.bin/eslint helpers/*.js",
+    "eslint-root": "./node_modules/.bin/eslint *.js"
   },
   "dependencies": {
     "axios": "^0.19.0",
     "chai": "^4.1.2",
-    "chromedriver": "^75.0.0",
+    "chromedriver": "^74.0.0",
     "geckodriver": "^1.16.2",
     "mocha": "^6.1.4",
     "reverse-md5": "0.0.4",
