@@ -1,6 +1,7 @@
 const { By } = require('selenium-webdriver');
 const { notDefined } = require('../../helpers/functions');
 const { Page } = require('./Page');
+const { EnquirePage } = require('./EnquirePage');
 
 /**
  * Product Page class
@@ -63,6 +64,41 @@ class ProductPage extends Page {
 	 */
 	async clickEnquire() {
 		return await this._driver.findElement(this._enquireButtonSelector).click();
+	}
+
+	/**
+	 * Click the enquire button | currently causing timeout.
+	 *
+	 * @returns {Promise<!Promise<void>|*|!LegacyActionSequence|!Actions|never|void>}
+	 */
+	async clickEnquireButton() {
+		const enquireLink = await this._driver.findElement(this._enquireButtonSelector);
+
+		const actions = await this._driver.actions({ bridge: true });
+		// move the mouse to this link element to make it clickable
+		await actions.move({
+			duration: 5000,
+			origin: enquireLink,
+			x: 0,
+			y: 0
+		}).perform();
+
+		// now click it
+		await actions.click(enquireLink).perform();
+	}
+
+	/**
+	 * Open the enquire page
+	 *
+	 * @returns {Promise<void>}
+	 */
+	async openEnquire() {
+		const enquireLink = await this._driver.findElement(this._enquireButtonSelector);
+		const url = enquireLink.getAttribute('href').then((url) => url);
+
+		const enquirePage = await new EnquirePage(this._driver, url);
+		await enquirePage.open();
+		return await enquirePage;
 	}
 }
 
