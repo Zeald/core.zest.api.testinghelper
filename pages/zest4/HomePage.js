@@ -40,7 +40,7 @@ class HomePage extends Page {
 	 * @returns {Promise<?string>} Category URL
 	 */
 	async getCategoryURL(childNumber) {
-		const childIndex = childNumber === undefined ? 1 : childNumber;
+		const childIndex = notDefined(childNumber) ? 1 : childNumber;
 
 		// get the link of the first category that can be grabbed.
 		return await this._driver.findElement(
