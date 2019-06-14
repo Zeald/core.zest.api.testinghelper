@@ -227,11 +227,7 @@ class CheckoutPage extends Page {
 		await this._driver.findElement(this._placeOrderButtonLocator).click();
 		// instantiate receipt page
 		const currentURL = await this._driver.getCurrentUrl().then((url) => url);
-		return await new ReceiptPage(
-			this._driver,
-			currentURL,
-			By.xpath("//div[@class='component_OrderProcess_Receipt']"),
-			By.xpath("//*[contains(text(),'ORD')]"));
+		return await new ReceiptPage(this._driver, currentURL);
 	}
 
 	/**
