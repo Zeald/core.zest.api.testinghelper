@@ -13,7 +13,7 @@ class ProductPage extends Page {
 	 * @param webdriver Selenium web driver.
 	 * @param url The url of the page.
 	 * @param addToCartButtonLocator The locator for add to cart button.
-	 * @param enquireButtonSelector The locator for enquire cart button
+	 * @param enquireButtonSelector The locator for enquire cart button.
 	 * @param closeModalButtonLocator The locator for close modal button.
 	 */
 	constructor(webdriver, url, addToCartButtonLocator, enquireButtonSelector, closeModalButtonLocator) {
@@ -54,6 +54,15 @@ class ProductPage extends Page {
 	 */
 	async clickAddToCart() {
 		return await this._driver.findElement(this._addToCartButtonLocator).click();
+	}
+
+	/**
+	 * Click the add to cart button
+	 *
+	 * @returns {Promise<!Promise<void>|*|!LegacyActionSequence|!Actions|never|void>}
+	 */
+	async clickEnquire() {
+		return await this._driver.findElement(this._enquireButtonSelector).click();
 	}
 }
 
