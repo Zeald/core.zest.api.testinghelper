@@ -213,7 +213,9 @@ class ContactUs extends Page {
 
 			return await new EnquiryReceiptPage(
 				this._driver,
-				currentURL);
+				currentURL,
+				this._enquiryReceiptSectionLocator,
+				this._acknowledgmentTextRegex);
 		}
 
 		return await null;
