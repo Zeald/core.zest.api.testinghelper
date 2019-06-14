@@ -1,3 +1,4 @@
+const { By } = require('selenium-webdriver');
 const { expect } = require('chai');
 const { notDefined } = require('../../helpers/functions');
 const { Page } = require('./Page');
@@ -22,7 +23,9 @@ class ReceiptPage extends Page {
 
 		// initialize locators if not defined
 		this._orderReceiptSectionLocator = notDefined(this._orderReceiptSectionLocator) ?
-			orderReceiptSectionLocator : this._orderReceiptSectionLocator;
+			By.xpath("//div[@class='component_OrderProcess_Receipt']") : this._orderReceiptSectionLocator;
+		this._orderNumberLocator = notDefined(this._orderNumberLocator) ?
+			By.xpath("//*[contains(text(),'ORD')]") : this._orderNumberLocator;
 	}
 
 	/**
