@@ -199,6 +199,7 @@ class EnquirePage extends Page {
 			return await new EnquiryReceiptPage(
 				this._driver,
 				currentURL,
+				null,
 				this._enquiryReceiptSectionLocator,
 				this._acknowledgmentTextRegex);
 		}
