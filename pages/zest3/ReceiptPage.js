@@ -29,6 +29,24 @@ class ReceiptPage extends Page {
 	}
 
 	/**
+	 * Set order receipt section locator
+	 *
+	 * @param value Locator
+	 */
+	set orderReceiptSectionLocator(value) {
+		this._orderReceiptSectionLocator = value;
+	}
+
+	/**
+	 * Set order number locator
+	 *
+	 * @param value Locator
+	 */
+	set orderNumberLocator(value) {
+		this._orderNumberLocator = value;
+	}
+
+	/**
 	 * Verify receipt page
 	 *
 	 * @returns {Promise<*>}

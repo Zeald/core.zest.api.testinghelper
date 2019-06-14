@@ -39,7 +39,7 @@ class ProductPage extends Page {
 	}
 
 	/**
-	 * Set enquire button selector
+	 * Set enquire button locator
 	 *
 	 * @param value Locator
 	 */

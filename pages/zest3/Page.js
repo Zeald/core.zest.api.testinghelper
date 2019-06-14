@@ -42,7 +42,7 @@ class Page {
 	}
 
 	/**
-	 * Close modal button locator
+	 * Set close modal button locator
 	 *
 	 * @param value The locator for close modal button.
 	 */

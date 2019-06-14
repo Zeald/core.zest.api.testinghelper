@@ -29,6 +29,24 @@ class EnquiryReceiptPage extends Page {
 	}
 
 	/**
+	 * Set enquiry receipt section locator
+	 *
+	 * @param value Locator
+	 */
+	set enquiryReceiptSectionLocator(value) {
+		this._enquiryReceiptSectionLocator = value;
+	}
+
+	/**
+	 * Set acknowledgment text regex
+	 *
+	 * @param value Regex
+	 */
+	set acknowledgmentTextRegex(value) {
+		this._acknowledgmentTextRegex = value;
+	}
+
+	/**
 	 * Get the receipt section
 	 *
 	 * @returns {Promise<string>}
@@ -38,7 +56,7 @@ class EnquiryReceiptPage extends Page {
 	}
 
 	/**
-	 * Expect the acknowledgment
+	 * Expect the acknowledgment regex
 	 *
 	 * @param acknowledgmentTextRegex Acknowledgment text for matching.
 	 * @returns {Promise<*>}
