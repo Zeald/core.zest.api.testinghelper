@@ -94,7 +94,7 @@ class ProductPage extends Page {
 	 */
 	async openEnquire() {
 		const enquireLink = await this._driver.findElement(this._enquireButtonSelector);
-		const url = enquireLink.getAttribute('href').then((url) => url);
+		const url = await enquireLink.getAttribute('href').then((url) => url);
 
 		const enquirePage = await new EnquirePage(this._driver, url);
 		await enquirePage.open();
