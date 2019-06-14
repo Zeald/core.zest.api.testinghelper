@@ -1,6 +1,7 @@
 const { By } = require('selenium-webdriver');
 const { expect } = require('chai');
 const { Page } = require('./Page');
+const { notDefined } = require('../../helpers/functions');
 
 /**
  * Enquiry receipt page
