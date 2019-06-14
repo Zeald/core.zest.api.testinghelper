@@ -1,11 +1,10 @@
-const { By } = require('selenium-webdriver');
-const { expect } = require('chai');
+const { By, until } = require('selenium-webdriver');
+const { notDefined } = require('../../helpers/functions');
 const { Page } = require('./Page');
 const { ReceiptPage } = require('./ReceiptPage');
-const { notDefined } = require('../../helpers/functions');
 
 /**
- * Checkout Page class
+ * Checkout page class
  *
  */
 class CheckoutPage extends Page {
@@ -23,9 +22,13 @@ class CheckoutPage extends Page {
 	 * @param emailInputLocator The email input form locator.
 	 * @param directCreditInputLocator The direct credit locator.
 	 * @param placeOrderButtonLocator The place order button locator.
+	 * @param directCreditParentWrapperLocator The wrapper activation locator of payment methods.
+	 * @param enableLoginLocator The enable login locator.
+	 * @param loginPasswordInputLocator The password input locator.
 	 */
 	constructor(webdriver, url, firstNameInputLocator, lastNameInputLocator, companyInputLocator, addressInputLocator,
-		cityInputLocator, phoneInputLocator, emailInputLocator, directCreditInputLocator, placeOrderButtonLocator) {
+		cityInputLocator, phoneInputLocator, emailInputLocator, directCreditInputLocator,
+		placeOrderButtonLocator, directCreditParentWrapperLocator, enableLoginLocator, loginPasswordInputLocator) {
 		super(webdriver, url);
 		this._firstNameInputLocator = firstNameInputLocator;
 		this._lastNameInputLocator = lastNameInputLocator;
@@ -36,30 +39,40 @@ class CheckoutPage extends Page {
 		this._emailInputLocator = emailInputLocator;
 		this._directCreditInputLocator = directCreditInputLocator;
 		this._placeOrderButtonLocator = placeOrderButtonLocator;
+		this._directCreditParentWrapperLocator = directCreditParentWrapperLocator;
+		this._enableLoginLocator = enableLoginLocator;
+		this._loginPasswordInputLocator = loginPasswordInputLocator;
 
 		// initialize locators if not defined
 		this._firstNameInputLocator = notDefined(this._firstNameInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='b_fname']") : this._firstNameInputLocator;
+			By.xpath("//input[@name='b_fname']") : this._firstNameInputLocator;
 		this._lastNameInputLocator = notDefined(this._lastNameInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='b_lname']") : this._lastNameInputLocator;
+			By.xpath("//input[@name='b_lname']") : this._lastNameInputLocator;
 		this._companyInputLocator = notDefined(this._companyInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='b_company']") : this._companyInputLocator;
+			By.xpath("//input[@name='b_company']") : this._companyInputLocator;
 		this._addressInputLocator = notDefined(this._addressInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='b_address1']") : this._addressInputLocator;
+			By.xpath("//input[@name='b_address1']") : this._addressInputLocator;
 		this._cityInputLocator = notDefined(this._cityInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='b_city']") : this._cityInputLocator;
+			By.xpath("//input[@name='b_city']") : this._cityInputLocator;
 		this._phoneInputLocator = notDefined(this._phoneInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='b_phone']") : this._phoneInputLocator;
+			By.xpath("//input[@name='b_phone']") : this._phoneInputLocator;
 		this._emailInputLocator = notDefined(this._emailInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='email']") : this._emailInputLocator;
+			By.xpath("//input[@id='login_email']") : this._emailInputLocator;
 		this._directCreditInputLocator = notDefined(this._directCreditInputLocator) ?
-			By.xpath("//input[@value='directcredit'][@type='radio']") : this._directCreditInputLocator;
+			By.xpath("//option[contains(text(),'Direct Credit')]") : this._directCreditInputLocator;
 		this._placeOrderButtonLocator = notDefined(this._placeOrderButtonLocator) ?
-			By.xpath("//*[contains(@value, 'Place Order')]") : this._placeOrderButtonLocator;
+			By.xpath("//div[@id='co']//input[@name='mv_click'][contains(@value, 'Place Order')]") :
+			this._placeOrderButtonLocator;
+		this._directCreditParentWrapperLocator = notDefined(this._directCreditParentWrapperLocator) ?
+			By.xpath("//select[@name='payment_method']") : this._directCreditParentWrapperLocator;
+		this._enableLoginLocator = notDefined(this._enableLoginLocator) ?
+			By.xpath("//div[@id='c524']//tr[2]//td[1]//input[1]") : this._enableLoginLocator;
+		this._loginPasswordInputLocator = notDefined(this._loginPasswordInputLocator) ?
+			By.xpath("//input[@id='login_password']") : this._loginPasswordInputLocator;
 	}
 
 	/**
-	 * first name input
+	 * Set first name input locator
 	 *
 	 * @param value Locator
 	 */
@@ -68,7 +81,7 @@ class CheckoutPage extends Page {
 	}
 
 	/**
-	 * last name input
+	 * Set last name input locator
 	 *
 	 * @param value Locator
 	 */
@@ -77,7 +90,7 @@ class CheckoutPage extends Page {
 	}
 
 	/**
-	 * company input
+	 * Set company input locator
 	 *
 	 * @param value Locator
 	 */
@@ -86,7 +99,7 @@ class CheckoutPage extends Page {
 	}
 
 	/**
-	 * address input
+	 * Set address input locator
 	 *
 	 * @param value Locator
 	 */
@@ -95,7 +108,7 @@ class CheckoutPage extends Page {
 	}
 
 	/**
-	 * city input
+	 * Set city input locator
 	 *
 	 * @param value Locator
 	 */
@@ -104,7 +117,7 @@ class CheckoutPage extends Page {
 	}
 
 	/**
-	 * phone input
+	 * Set phone input locator
 	 *
 	 * @param value Locator
 	 */
@@ -113,7 +126,7 @@ class CheckoutPage extends Page {
 	}
 
 	/**
-	 * email input
+	 * Set email input locator
 	 *
 	 * @param value Locator
 	 */
@@ -122,7 +135,7 @@ class CheckoutPage extends Page {
 	}
 
 	/**
-	 * direct credit radio button
+	 * Set direct credit radio button locator
 	 *
 	 * @param value Locator
 	 */
@@ -131,12 +144,39 @@ class CheckoutPage extends Page {
 	}
 
 	/**
-	 * place order button
+	 * Set place order button locator
 	 *
 	 * @param value Locator
 	 */
 	set placeOrderButtonLocator(value) {
 		this._placeOrderButtonLocator = value;
+	}
+
+	/**
+	 * Set Payment method wrapper locator locator
+	 *
+	 * @param value Locator
+	 */
+	set directCreditParentWrapperLocator(value) {
+		this._directCreditParentWrapperLocator = value;
+	}
+
+	/**
+	 * Set enable login locator
+	 *
+	 * @param value Locator
+	 */
+	set enableLoginLocator(value) {
+		this._enableLoginLocator = value;
+	}
+
+	/**
+	 * Set login password input locator
+	 *
+	 * @param value Locator
+	 */
+	set loginPasswordInputLocator(value) {
+		this._loginPasswordInputLocator = value;
 	}
 
 	/**
@@ -212,10 +252,34 @@ class CheckoutPage extends Page {
 	/**
 	 * Choose direct credit
 	 *
+	 * @param directCreditParentWrapperLocator The parent locator for direct credit.
 	 * @returns {Promise<void>}
 	 */
-	async chooseDirectCredit() {
+	async chooseDirectCredit(directCreditParentWrapperLocator) {
+		const locator = notDefined(directCreditParentWrapperLocator) ?
+			this._directCreditParentWrapperLocator : directCreditParentWrapperLocator;
+
+		// open the payment methods selection
+		await this._driver.findElement(locator).click();
 		return await this._driver.findElement(this._directCreditInputLocator).click();
+	}
+
+	/**
+	 * Inject login password
+	 *
+	 * @param password Password value.
+	 * @param enableLoginLocator The locator of the element that will enable login.
+	 * @param passwordFormLocator The password input locator.
+	 * @returns {Promise<void>}
+	 */
+	async injectLoginPassword(password, enableLoginLocator, passwordFormLocator) {
+		const enableLocator = notDefined(enableLoginLocator) ? this._enableLoginLocator : enableLoginLocator;
+		const passwordLocator = notDefined(passwordFormLocator) ? this._loginPasswordInputLocator: passwordFormLocator;
+
+		// enable login
+		// Implement a way to use other selector for other catalog.
+		await this._driver.findElement(enableLocator).click();
+		await this._driver.wait(until.elementLocated(passwordLocator), 3000).sendKeys(password);
 	}
 
 	/**
@@ -228,15 +292,6 @@ class CheckoutPage extends Page {
 		// instantiate receipt page
 		const currentURL = await this._driver.getCurrentUrl().then((url) => url);
 		return await new ReceiptPage(this._driver, currentURL);
-	}
-
-	/**
-	 * Verify if the url provided is indeed the checkout page
-	 *
-	 * @returns {Promise<*>}
-	 */
-	async verifyCheckoutPage() {
-		return await expect(this._url).to.match(/checkout\.html/);
 	}
 }
 

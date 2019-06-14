@@ -1,14 +1,14 @@
 const { By } = require('selenium-webdriver');
-const reverseMd5 = require('reverse-md5');
 const { Page } = require('./Page');
 const { EnquiryReceiptPage } = require('./EnquiryReceiptPage');
 const { notDefined } = require('../../helpers/functions');
+const reverseMd5 = require('reverse-md5');
 
 /**
- * Contact us class
+ * Enquire Page class
  *
  */
-class ContactUs extends Page {
+class EnquirePage extends Page {
 	/**
 	 * Constructor
 	 *
@@ -18,7 +18,6 @@ class ContactUs extends Page {
 	 * @param fromEmailInputLocator The from email input form locator.
 	 * @param firstNameInputLocator The first name input form locator.
 	 * @param lastNameInputLocator The last name input form locator.
-	 * @param countryInputLocator The country input form locator.
 	 * @param subjectInputLocator The subject input form locator.
 	 * @param enquiryInputLocator The enquiry input form locator.
 	 * @param captchaInputLocator The captcha input form locator.
@@ -27,14 +26,13 @@ class ContactUs extends Page {
 	 */
 	constructor(
 		webdriver, url, closeModalButtonLocator, fromEmailInputLocator, firstNameInputLocator,
-		lastNameInputLocator, countryInputLocator, subjectInputLocator, enquiryInputLocator, captchaInputLocator,
+		lastNameInputLocator, subjectInputLocator, enquiryInputLocator, captchaInputLocator,
 		hashedCaptchaInputLocator, submitButtonLocator) {
 		super(webdriver, url, closeModalButtonLocator);
 
 		this._fromEmailInputLocator = fromEmailInputLocator;
 		this._firstNameInputLocator = firstNameInputLocator;
 		this._lastNameInputLocator = lastNameInputLocator;
-		this._countryInputLocator = countryInputLocator;
 		this._subjectInputLocator = subjectInputLocator;
 		this._enquiryInputLocator = enquiryInputLocator;
 		this._hashedCaptchaInputLocator = hashedCaptchaInputLocator;
@@ -48,8 +46,6 @@ class ContactUs extends Page {
 			By.xpath("//input[@name='fname']") : this._firstNameInputLocator;
 		this._lastNameInputLocator = notDefined(this._lastNameInputLocator) ?
 			By.xpath("//input[@name='lname']") : this._lastNameInputLocator;
-		this._countryInputLocator = notDefined(this._countryInputLocator) ?
-			By.xpath("//input[@name='q6']") : this._countryInputLocator;
 		this._subjectInputLocator = notDefined(this._subjectInputLocator) ?
 			By.xpath("//input[@name='query_sku']") : this._subjectInputLocator;
 		this._enquiryInputLocator = notDefined(this._enquiryInputLocator) ?
@@ -64,7 +60,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * From email input
+	 * Set the from email input locator
 	 *
 	 * @param value Locator
 	 */
@@ -73,7 +69,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * First name input
+	 * Set the first name input locator
 	 *
 	 * @param value Locator
 	 */
@@ -82,7 +78,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Last name input
+	 * Set the last name input locator
 	 *
 	 * @param value Locator
 	 */
@@ -91,16 +87,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Country input
-	 *
-	 * @param value Locator
-	 */
-	set countryInputLocator(value) {
-		this._countryInputLocator = value;
-	}
-
-	/**
-	 * Subject input
+	 * Set the subject input locator
 	 *
 	 * @param value Locator
 	 */
@@ -109,7 +96,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Enquiry input
+	 * Set the enquiry input locator
 	 *
 	 * @param value Locator
 	 */
@@ -118,7 +105,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Captchat input
+	 * Set the captchat input locator
 	 *
 	 * @param value Locator
 	 */
@@ -127,7 +114,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * hashed captcha input
+	 * Set the hashed captcha input locator
 	 *
 	 * @param value Locator
 	 */
@@ -136,7 +123,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Submit button
+	 * Set the submit button locator
 	 *
 	 * @param value Locator
 	 */
@@ -145,7 +132,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Enquiry receipt section
+	 * Set the enquiry receipt section locator
 	 *
 	 * @param value Locator
 	 */
@@ -154,7 +141,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Acknowledgment test regex
+	 * Set Acknowledgment test regex locator
 	 *
 	 * @param value Locator
 	 */
@@ -168,24 +155,22 @@ class ContactUs extends Page {
 	 * @param fromEmail Email value
 	 * @param firstName First name value
 	 * @param lastName Last name value
-	 * @param country Country value
 	 * @param subject Subject value
 	 * @param enquiry Enquiry value
 	 * @returns {Promise<void>}
 	 */
-	async sendEnquiry(fromEmail, firstName, lastName, country, subject, enquiry) {
+	async sendEnquiry(fromEmail, firstName, lastName, subject, enquiry) {
 		if (!await this.pageNotFound()) {
 			// fill in the form
 			await this._driver.findElement(this._fromEmailInputLocator).sendKeys(fromEmail);
 			await this._driver.findElement(this._firstNameInputLocator).sendKeys(firstName);
 			await this._driver.findElement(this._lastNameInputLocator).sendKeys(lastName);
 
-			// Check if there is country field.
-			await this._driver.findElement(this._countryInputLocator).then(async (elem) => {
-				await elem.sendKeys(country);
-			}).catch((err) => console.log('Country field do not exist in enquiry page.'));
+			// clear first the subject
+			const subjectElement = await this._driver.findElement(this._subjectInputLocator);
+			await subjectElement.clear();
+			await subjectElement.sendKeys(subject);
 
-			await this._driver.findElement(this._subjectInputLocator).sendKeys(subject);
 			await this._driver.findElement(this._enquiryInputLocator).sendKeys(enquiry);
 
 			const captchaHashed = await this._driver.findElement(
@@ -214,6 +199,7 @@ class ContactUs extends Page {
 			return await new EnquiryReceiptPage(
 				this._driver,
 				currentURL,
+				null,
 				this._enquiryReceiptSectionLocator,
 				this._acknowledgmentTextRegex);
 		}
@@ -222,4 +208,4 @@ class ContactUs extends Page {
 	}
 }
 
-module.exports.ContactUs = ContactUs;
+module.exports.EnquirePage = EnquirePage;

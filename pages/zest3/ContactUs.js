@@ -1,11 +1,11 @@
 const { By } = require('selenium-webdriver');
+const { notDefined } = require('../../helpers/functions');
 const reverseMd5 = require('reverse-md5');
 const { Page } = require('./Page');
 const { EnquiryReceiptPage } = require('./EnquiryReceiptPage');
-const { notDefined } = require('../../helpers/functions');
 
 /**
- * Contact us class
+ * Contact us page class
  *
  */
 class ContactUs extends Page {
@@ -64,7 +64,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * From email input
+	 * Set from email input locator
 	 *
 	 * @param value Locator
 	 */
@@ -73,7 +73,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * First name input
+	 * Set first name input locator
 	 *
 	 * @param value Locator
 	 */
@@ -82,7 +82,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Last name input
+	 * Set last name input locator
 	 *
 	 * @param value Locator
 	 */
@@ -91,7 +91,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Country input
+	 * Set country input locator
 	 *
 	 * @param value Locator
 	 */
@@ -100,7 +100,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Subject input
+	 * Set subject input locator
 	 *
 	 * @param value Locator
 	 */
@@ -109,7 +109,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Enquiry input
+	 * Set enquiry input locator
 	 *
 	 * @param value Locator
 	 */
@@ -118,7 +118,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Captchat input
+	 * Set captchat input locator
 	 *
 	 * @param value Locator
 	 */
@@ -127,7 +127,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * hashed captcha input
+	 * Set hashed captcha input locator
 	 *
 	 * @param value Locator
 	 */
@@ -136,7 +136,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Submit button
+	 * Set submit button locator
 	 *
 	 * @param value Locator
 	 */
@@ -145,7 +145,7 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Enquiry receipt section
+	 * Set enquiry receipt section locator
 	 *
 	 * @param value Locator
 	 */
@@ -154,9 +154,9 @@ class ContactUs extends Page {
 	}
 
 	/**
-	 * Acknowledgment test regex
+	 * Set acknowledgment test regex
 	 *
-	 * @param value Locator
+	 * @param value Acknowledgement text regex for matching.
 	 */
 	set acknowledgmentTextRegex(value) {
 		this._acknowledgmentTextRegex = value;
@@ -181,9 +181,11 @@ class ContactUs extends Page {
 			await this._driver.findElement(this._lastNameInputLocator).sendKeys(lastName);
 
 			// Check if there is country field.
-			await this._driver.findElement(this._countryInputLocator).then(async (elem) => {
-				await elem.sendKeys(country);
-			}).catch((err) => console.log('Country field do not exist in enquiry page.'));
+			if (this._countryInputLocator) {
+				await this._driver.findElement(this._countryInputLocator).then(async (elem) => {
+					await elem.sendKeys(country);
+				}).catch((err) => console.log('Country field do not exist in enquiry page.'));
+			}
 
 			await this._driver.findElement(this._subjectInputLocator).sendKeys(subject);
 			await this._driver.findElement(this._enquiryInputLocator).sendKeys(enquiry);

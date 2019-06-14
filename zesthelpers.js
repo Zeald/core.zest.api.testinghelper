@@ -11,6 +11,16 @@ const Zest4Page = require('./pages/zest4/Page').Page;
 const Zest4ProductPage = require('./pages/zest4/ProductPage').ProductPage;
 const Zest4ReceiptPage = require('./pages/zest4/ReceiptPage').ReceiptPage;
 
+// Zest 3 Pages
+const Zest3CategoryPage = require('./pages/zest3/CategoryPage').CategoryPage;
+const Zest3CheckoutPage = require('./pages/zest3/CheckoutPage').CheckoutPage;
+const Zest3ContactUs = require('./pages/zest3/ContactUs').ContactUs;
+const Zest3EnquiryReceiptPage = require('./pages/zest3/EnquiryReceiptPage').EnquiryReceiptPage;
+const Zest3HomePage = require('./pages/zest3/HomePage').HomePage;
+const Zest3Page = require('./pages/zest3/Page').Page;
+const Zest3ProductPage = require('./pages/zest3/ProductPage').ProductPage;
+const Zest3ReceiptPage = require('./pages/zest3/ReceiptPage').ReceiptPage;
+
 // export helper modules
 module.exports.notDefined = notDefined;
 module.exports.ZestApi = ZestApi;
@@ -23,3 +33,13 @@ module.exports.Zest4HomePage = Zest4HomePage;
 module.exports.Zest4ProductPage = Zest4ProductPage;
 module.exports.Zest4ReceiptPage = Zest4ReceiptPage;
 module.exports.Zest4Page = Zest4Page;
+// export zest3 pages class
+module.exports.Zest3CategoryPage = Zest3CategoryPage;
+module.exports.Zest3CheckoutPage = Zest3CheckoutPage;
+module.exports.Zest3ContactUs = Zest3ContactUs;
+module.exports.Zest3EnquiryReceiptPage = Zest3EnquiryReceiptPage;
+module.exports.Zest3HomePage = Zest3HomePage;
+module.exports.Zest3ProductPage = Zest3ProductPage;
+module.exports.Zest3ReceiptPage = Zest3ReceiptPage;
+module.exports.Zest3Page = Zest3Page;
+

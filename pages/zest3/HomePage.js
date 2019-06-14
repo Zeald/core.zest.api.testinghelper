@@ -1,8 +1,8 @@
 const { By } = require('selenium-webdriver');
+const { notDefined } = require('../../helpers/functions');
 const { Page } = require('./Page');
 const { CheckoutPage } = require('./CheckoutPage');
 const { ContactUs } = require('./ContactUs');
-const { notDefined } = require('../../helpers/functions');
 
 /**
  * Home page class
@@ -14,21 +14,21 @@ class HomePage extends Page {
 	 *
 	 * @param webdriver Selenium web driver.
 	 * @param url The url of the page.
-	 * @param closeModalButtonLocator The locator for close modal button.
 	 * @param cartLocator The cart icon locator.
 	 * @param checkoutButtonLocator The checkout button locator.
 	 * @param contactUsLocator The contact us link locator.
 	 */
-	constructor(webdriver, url, closeModalButtonLocator, cartLocator, checkoutButtonLocator, contactUsLocator) {
-		super(webdriver, url, closeModalButtonLocator);
+	constructor(webdriver, url, cartLocator, checkoutButtonLocator, contactUsLocator) {
+		super(webdriver, url);
 		this._cartLocator = cartLocator;
 		this._checkoutButtonLocator = checkoutButtonLocator;
 		this._contactUsLocator = contactUsLocator;
 
 		// initialize locators if not defined
-		this._cartLocator = notDefined(this._cartLocator) ? By.id('mini-cart') : this._cartLocator;
+		this._cartLocator = notDefined(this._cartLocator) ?
+			By.css('div#mini_cart a:first-of-type') : this._cartLocator;
 		this._checkoutButtonLocator = notDefined(this._checkoutButtonLocator) ?
-			By.id('checkout') : this._checkoutButtonLocator;
+			By.css('input.btn_cart_co[type=submit]') : this._checkoutButtonLocator;
 		this._contactUsLocator = notDefined(this._contactUsLocator) ?
 			By.xpath("//a[contains(text(),'Contact Us')]") : this._contactUsLocator;
 	}
@@ -43,9 +43,11 @@ class HomePage extends Page {
 		const childIndex = notDefined(childNumber) ? 1 : childNumber;
 
 		// get the link of the first category that can be grabbed.
-		return await this._driver.findElement(
-			By.css('.component_Navigation_ContentTabs .ct_has_dropdown:nth-child('+childIndex+') a')
-		).getAttribute('href').then((url) => url);
+		const tabLinks = await this._driver.findElements(
+			By.css('.component_Navigation_ContentTabs li.ct_has_dropdown'));
+
+		return await tabLinks[childIndex - 1].findElement(By.css('a:first-of-type'))
+			.getAttribute('href').then((url) => url);
 	}
 
 	/**
@@ -63,7 +65,7 @@ class HomePage extends Page {
 	 * @returns {!Promise<void>}
 	 */
 	async clickCheckoutButton() {
-		await this._driver.findElement(this._checkoutButtonLocator).click();
+		await await this._driver.findElement(this._checkoutButtonLocator).click();
 		// get the current url now after click
 		const currentURL = await this._driver.getCurrentUrl().then((url) => url);
 		return await new CheckoutPage(this._driver, currentURL);
@@ -79,7 +81,17 @@ class HomePage extends Page {
 
 		const args = [
 			this._driver,
-			this._url+'Contact+Us'
+			this._url+'Contact+Us',
+			By.className('mc-closeModal'),
+			By.xpath("//input[@name='from_email']"),
+			By.xpath("//input[@name='fname']"),
+			By.xpath("//input[@name='lname']"),
+			null,
+			By.xpath("//input[@name='query_sku']"),
+			By.xpath("//textarea[@name='enquiry_text']"),
+			By.xpath("//input[@name='antispam']"),
+			By.xpath("//input[@name='antispam_encoded']"),
+			By.xpath("//input[@name='submit_button']")
 		];
 
 		if (clickSuccess) {
