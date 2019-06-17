@@ -1,6 +1,6 @@
 {
   "name": "zest-api-testinghelper",
-  "version": "0.3.5",
+  "version": "0.3.8",
   "description": "Zest API class helper",
   "main": "zesthelpers.js",
   "scripts": {
@@ -14,6 +14,7 @@
     "axios": "^0.19.0",
     "chai": "^4.1.2",
     "chromedriver": "^74.0.0",
+    "dotenv": "^8.0.0",
     "geckodriver": "^1.16.2",
     "mocha": "^6.1.4",
     "reverse-md5": "0.0.4",
