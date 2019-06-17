@@ -1,6 +1,7 @@
 const { By } = require('selenium-webdriver');
 const { expect } = require('chai');
 const { notDefined } = require('../../helpers/functions');
+const { ZestApi } = require('../../helpers/ZestApi');
 const { Page } = require('./Page');
 
 /**
@@ -38,6 +39,21 @@ class ReceiptPage extends Page {
 	}
 
 	/**
+	 * Verify order number via API
+	 *
+	 * @param apiBaseURL Zest API Base URL
+	 * @param apiKey Zest API Key
+	 * @returns {Promise<properties.null|{enum}|string>}
+	 */
+	async verifyOrderNumberViaAPI(apiBaseURL, apiKey) {
+		const zestApi = await new ZestApi(apiBaseURL, apiKey);
+		// get the order number
+		const orderNumber = await this.getOrderNumber().then((orderNumber) => orderNumber);
+		const order = await zestApi.transaction(orderNumber).then((order) => order);
+		return expect(order).to.not.be.null;
+	}
+
+	/**
 	 * Get the receipt section
 	 *
 	 * @returns {Promise<void>}
@@ -49,10 +65,10 @@ class ReceiptPage extends Page {
 	/**
 	 * Get order number
 	 *
-	 * @returns {Promise<void>}
+	 * @returns {Promise<string>}
 	 */
 	async getOrderNumber() {
-		return await this._driver.findElement(this._orderNumberLocator);
+		return await this._driver.findElement(this._orderNumberLocator).getText().then((text) => text.trim());
 	}
 }
 
