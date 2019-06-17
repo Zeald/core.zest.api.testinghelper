@@ -47,6 +47,66 @@ class ZestApi {
 	}
 
 	/**
+	 * Get a transaction
+	 *
+	 * @param orderNumber Order number of the transaction
+	 * @param status Status of the transaction
+	 * @param method HTTP Method
+	 * @returns {Promise<any>}
+	 */
+	async transaction(orderNumber, status, method) {
+		// throw an exception if the base API url or the API key was not set.
+		if (notDefined(this._apiBaseURL)) {
+			throw new Error('API Base url is undefined or empty!');
+		}
+
+		if (notDefined(this._apiKey)) {
+			throw new Error('API key is undefined or empty!');
+		}
+
+		method = notDefined(method) ? 'get' : method;
+		status = notDefined(method) ? 'pending' : status;
+
+		const params = {
+			_key: this._apiKey
+		};
+
+		if (!notDefined(status)) {
+			params.status = status;
+		}
+
+		params.order_number = orderNumber;
+
+		const order = await axios[method](this._apiBaseURL+'Transactions', { params: params }).then((result) => {
+			const data = xmlConverter.xml2json(result.data, {
+				compact: true,
+				spaces: 4,
+				ignoreComment: true
+			});
+
+			const orderResult = JSON.parse(data).ResultSet.Order;
+			let order = null;
+
+			if (!notDefined(orderResult)) {
+				order = ZestApi._extractTransactionData(orderResult);
+			}
+
+			return order;
+		}).catch((err) => {
+			console.error(err);
+			return err;
+		});
+
+		return await new Promise((resolve, reject) => {
+			if (order instanceof Error) {
+				return reject(order);
+			}
+
+			return resolve(order);
+		});
+	}
+
+	/**
 	 * Get the order Lines
 	 *
 	 * @param orderNumber Order number of the order
@@ -258,6 +318,66 @@ class ZestApi {
 			subtotalConvertedDefaultCurrency: result.subtotal_converted_default_currency._text,
 			subtotalNumeric: result.subtotal_numeric._text,
 			updateDate: result.update_date._text
+		};
+	}
+
+	// eslint-disable-next-line valid-jsdoc
+	/**
+	 * Helper function that extracts text from the transactions response
+	 *
+	 * @param result
+	 * @returns {{customerState: string | string | number,
+	 * updateDate: string | string | number,
+	 * customerZip: string | string | number,
+	 * orderNumber: string | string | number,
+	 * orderId: string | string | number,
+	 * subtotalNumeric: string | string | number,
+	 * customerCity: string | string | number,
+	 * subTotal: string | string | number,
+	 * userName: string | string | number,
+	 * customerCountry: string | string | number,
+	 * totalNumeric: string | string | number,
+	 * totalConvertedDefaultCurrency: string | string | number,
+	 * customerPhone: string | string | number,
+	 * customerFirstName: string | string | number,
+	 * customerEmail: string | string | number,
+	 * customerCompany: string | string | number,
+	 * paymentMethod: string | string | number,
+	 * customerAddress1: string | string | number,
+	 * customerLastName: string | string | number,
+	 * subtotalConvertedDefaultCurrency: string | string | number,
+	 * customerAddress2: string | string | number,
+	 * orderDate: string | string | number,
+	 * totalCost: string | string | number,
+	 * status: string | string | number}}
+	 * @private
+	 */
+	static _extractTransactionData(result) {
+		return {
+			customerAddress1: result.b_address1._text,
+			customerAddress2: result.b_address2._text,
+			customerCity: result.b_city._text,
+			customerCompany: result.b_company._text,
+			customerCountry: result.b_country._text,
+			customerFirstName: result.b_fname._text,
+			customerLastName: result.b_lname._text,
+			customerPhone: result.b_phone._text,
+			customerState: result.b_state._text,
+			customerZip: result.b_zip._text,
+			customerEmail: result.email._text,
+			orderId: result.order_id._text,
+			orderDate: result.order_date._text,
+			orderNumber: result.order_number._text,
+			paymentMethod: result.payment_method._text,
+			status: result.status._text,
+			subTotal: result.subtotal._text,
+			subtotalConvertedDefaultCurrency: result.subtotal_converted_default_currency._text,
+			subtotalNumeric: result.subtotal_numeric._text,
+			totalConvertedDefaultCurrency: result.total_converted_default_currency._text,
+			totalCost: result.total_cost._text,
+			totalNumeric: result.total_numeric._text,
+			updateDate: result.update_date._text,
+			userName: result.username._text
 		};
 	}
 }
