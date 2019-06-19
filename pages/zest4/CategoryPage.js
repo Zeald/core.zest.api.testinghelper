@@ -17,14 +17,18 @@ class CategoryPage extends Page {
 	 * @param productLinkLocator The product view locator.
 	 * @param filterGroupLocator The locator for filter groups.
 	 * @param filtersLocator The locator for filter items.
+	 * @param showFiltersLocator
 	 */
-	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator, filtersLocator) {
+	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator,
+		filtersLocator, showFiltersLocator, closeFiltersButtonLocator) {
 		super(webdriver, url);
 
 		this._catViewLocator = catViewLocator;
 		this._productLinkLocator = productLinkLocator;
 		this._filterGroupLocator = filterGroupLocator;
 		this._filtersLocator = filtersLocator;
+		this._showFiltersLocator = showFiltersLocator;
+		this._closeFiltersButtonLocator = closeFiltersButtonLocator;
 
 		// initialize locators if not defined
 		this._catViewLocator = notDefined(this._catViewLocator) ?
@@ -35,6 +39,11 @@ class CategoryPage extends Page {
 			By.css('.filter-collection > .filter-group') : this._filterGroupLocator;
 		this._filtersLocator = notDefined(this._filtersLocator) ?
 			By.css('ul > li.filter') : this._filtersLocator;
+		this._showFiltersLocator = notDefined(this._showFiltersLocator) ?
+			By.css('.top-filters .show-filters') : this._showFiltersLocator;
+		this._closeFiltersButtonLocator = notDefined(this._closeFiltersButtonLocator) ?
+			By.xpath("//*[@class='pop-overlay-inner pop-left']//*[@class='close'][contains(text(),'Close')]") :
+			this._closeFiltersButtonLocator;
 	}
 
 	/**
@@ -105,6 +114,14 @@ class CategoryPage extends Page {
 
 		// pick a filter group
 		const filterGroup = await pickRandom(...filterGroups);
+		const filterGroupDisplayed = await filterGroup.isDisplayed().then((displayed) => displayed);
+		const showFilter = await this._driver.findElement(this._showFiltersLocator);
+
+		if (!filterGroupDisplayed) {
+			// click show filter
+			await showFilter.click();
+		}
+
 		// pick a filter to click
 		const filters = await filterGroup.findElements(this._filtersLocator).then((filters) => filters);
 		const filter = await pickRandom(...filters);
@@ -113,6 +130,12 @@ class CategoryPage extends Page {
 		await filter.click();
 
 		// TODO: wait until products view is loaded
+
+		if (!filterGroupDisplayed) {
+			// close the filter
+			const closeButton = await this._driver.findElement(this._closeFiltersButtonLocator);
+			await closeButton.click();
+		}
 
 		return await filter;
 	}
