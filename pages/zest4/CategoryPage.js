@@ -196,9 +196,18 @@ class CategoryPage extends Page {
 	/**
 	 * Apply random product filter
 	 *
+	 * @param categoryURL The URL of the category.
 	 * @returns {Promise<void>}
 	 */
-	async applyRandomProductFilter() {
+	async applyRandomProductFilter(categoryURL) {
+		if (!notDefined(categoryURL)) {
+			this._url = categoryURL;
+			await this.open();
+		}
+
+		// wait for ready state
+		await this.waitReadyState();
+
 		const filterGroups = await this._driver.findElements(this._filterGroupLocator).then((groups) => groups);
 
 		// pick a filter group
@@ -250,6 +259,9 @@ class CategoryPage extends Page {
 			await this.open();
 		}
 
+		// wait for ready state
+		await this.waitReadyState();
+
 		// get the next page button
 		const loadNextPage = await this._driver.findElement(this._nextPageLocator);
 
@@ -261,10 +273,11 @@ class CategoryPage extends Page {
 		await loadNextPage.click();
 
 		// wait until all additional products are loaded
-		const loaderSpinner = await this._driver.findElement(this._pageLoaderLocator);
-		await this._driver.wait(until.elementIsVisible(loaderSpinner), 3000);
+		// const loaderSpinner = await this._driver.findElement(this._pageLoaderLocator);
+		// await this._driver.wait(until.elementIsVisible(loaderSpinner), 3000);
 		// wait until page loader / spinner is no longer visible
-		await this._driver.wait(until.elementIsNotVisible(loaderSpinner), 3000);
+		// await this._driver.wait(until.elementIsNotVisible(loaderSpinner), 3000);
+		await this._driver.sleep(5000);
 
 		// get the new products list
 		const nextPageProducts = await this.getProductURLs().then((urls) => urls);
@@ -284,6 +297,9 @@ class CategoryPage extends Page {
 			this._url = categoryURL;
 			await this.open();
 		}
+
+		// wait for ready state
+		await this.waitReadyState();
 
 		const pageSelector = await this._driver.findElement(this._loadPageDropDownLocator);
 
