@@ -215,9 +215,13 @@ class CategoryPage extends Page {
 		const filterGroupDisplayed = await filterGroup.isDisplayed().then((displayed) => displayed);
 		const showFilter = await this._driver.findElement(this._showFiltersLocator);
 
+		await this._driver.wait(until.elementIsVisible(showFilter), 3000);
+
 		if (!filterGroupDisplayed) {
-			// click show filter
-			await showFilter.click();
+			// use executor to click at this point since there are instances show filter is not clickable
+			// await showFilter.click();
+			await this.executorClick(showFilter);
+			await this.performSleep();
 		}
 
 		// pick a filter to click
@@ -232,16 +236,22 @@ class CategoryPage extends Page {
 		if (!filterGroupDisplayed) {
 			// close the filter
 			await closeButton.click();
+			await this.performSleep();
 		}
 
-		// TODO: wait until products view is loaded
+		await this.checkIfProductsExists();
 
 		// open filter and close uncheck
 		if (!filterGroupDisplayed) {
-			await showFilter.click();
+			// use executor to click at this point since there are instances show filter is not clickable
+			// await showFilter.click();
+			await this.executorClick(showFilter);
+			await this.performSleep();
 			await filter.click();
+			await this.performSleep();
 			// close the filter
-			await closeButton.click();
+			await this.executorClick(closeButton);
+			await this.performSleep();
 		}
 
 		return await filter;
@@ -271,13 +281,7 @@ class CategoryPage extends Page {
 
 		// click load next page
 		await loadNextPage.click();
-
-		// wait until all additional products are loaded
-		// const loaderSpinner = await this._driver.findElement(this._pageLoaderLocator);
-		// await this._driver.wait(until.elementIsVisible(loaderSpinner), 3000);
-		// wait until page loader / spinner is no longer visible
-		// await this._driver.wait(until.elementIsNotVisible(loaderSpinner), 3000);
-		await this._driver.sleep(5000);
+		await this.checkIfProductsExists();
 
 		// get the new products list
 		const nextPageProducts = await this.getProductURLs().then((urls) => urls);
