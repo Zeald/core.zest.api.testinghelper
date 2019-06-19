@@ -289,7 +289,8 @@ class CategoryPage extends Page {
 		if (isLoadNextPageExist) {
 			const loadNextPage = await this._driver.findElement(this._nextPageLocator);
 			// click load next page
-			await loadNextPage.click();
+			// await loadNextPage.click();
+			await this.executorClick(loadNextPage);
 			await this.performSleep();
 		}
 
