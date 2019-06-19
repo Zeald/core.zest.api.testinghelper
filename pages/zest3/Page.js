@@ -18,6 +18,9 @@ class Page {
 		this._url = url;
 		this._closeModalButtonLocator = closeModalButtonLocator;
 
+		// explicit sleep in milliseconds for every action
+		this._explicitSleep = 1000;
+
 		// set the default locator of modal if not specified
 		this._closeModalButtonLocator = notDefined(this._closeModalButtonLocator) ?
 			By.className('mc-closeModal') : this._closeModalButtonLocator;
@@ -48,6 +51,15 @@ class Page {
 	 */
 	set closeModalButtonLocator(value) {
 		this._closeModalButtonLocator = value;
+	}
+
+	/**
+	 * Set explicit sleep in milliseconds
+	 *
+	 * @param value Sleep length in milliseconds
+	 */
+	set explicitSleep(value) {
+		this._explicitSleep = value;
 	}
 
 	/**
@@ -82,6 +94,15 @@ class Page {
 	 */
 	async executorClick(element) {
 		return await this._driver.executeScript('arguments[0].click();', element);
+	}
+
+	/**
+	 * Perform pause or sleep
+	 *
+	 * @returns {Promise<void>}
+	 */
+	async performSleep() {
+		return await this._driver.sleep(this._explicitSleep);
 	}
 
 	/**
