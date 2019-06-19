@@ -230,6 +230,7 @@ class CategoryPage extends Page {
 
 		// click and check
 		await filter.click();
+		await this.performSleep();
 
 		const closeButton = await this._driver.findElement(this._closeFiltersButtonLocator);
 
@@ -272,18 +273,24 @@ class CategoryPage extends Page {
 		// wait for ready state
 		await this.waitReadyState();
 
-		// get the next page button
-		const loadNextPage = await this._driver.findElement(this._nextPageLocator);
-
 		// get the products before loading the next page
 		await this.checkIfProductsExists();
 		const firstPageProducts = await this.getProductURLs().then((urls) => urls);
 
-		const loadNextPageDisplayed = loadNextPage.isDisplayed().then((displayed) => displayed);
+		// get the next page button
+		const isLoadNextPageExist = await this._driver.findElement(this._nextPageLocator).then((element) => {
+			if (element) {
+				return true;
+			}
+		}).catch((err) => {
+			return false;
+		});
 
-		if (loadNextPageDisplayed) {
+		if (isLoadNextPageExist) {
+			const loadNextPage = await this._driver.findElement(this._nextPageLocator);
 			// click load next page
 			await loadNextPage.click();
+			await this.performSleep();
 		}
 
 		await this.checkIfProductsExists();
@@ -314,6 +321,7 @@ class CategoryPage extends Page {
 
 		// click the page selector
 		await pageSelector.click();
+		await this.performSleep();
 
 		// get all the pages under the drop down
 		const pages = await pageSelector.findElements(this._pagesLocator).then((pages) => pages);
@@ -321,6 +329,8 @@ class CategoryPage extends Page {
 		const page = await pickRandom(...pages);
 		// click the page
 		await page.click();
+
+		await this.performSleep();
 
 		// verify if there are products
 		await this.checkIfProductsExists();
