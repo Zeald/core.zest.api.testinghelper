@@ -106,7 +106,7 @@ class CategoryPage extends Page {
 		// pick a filter group
 		const filterGroup = await pickRandom(...filterGroups);
 		// pick a filter to click
-		const filters = await filterGroup.findElement(this._filtersLocator).then((filters) => filters);
+		const filters = await filterGroup.findElements(this._filtersLocator).then((filters) => filters);
 		const filter = await pickRandom(...filters);
 
 		// click and check
