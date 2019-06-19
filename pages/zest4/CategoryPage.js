@@ -229,7 +229,8 @@ class CategoryPage extends Page {
 		const filter = await pickRandom(...filters);
 
 		// click and check
-		await filter.click();
+		// await filter.click();
+		await this.executorClick(filter)
 		await this.performSleep();
 
 		const closeButton = await this._driver.findElement(this._closeFiltersButtonLocator);
@@ -248,7 +249,7 @@ class CategoryPage extends Page {
 			// await showFilter.click();
 			await this.executorClick(showFilter);
 			await this.performSleep();
-			await filter.click();
+			await this.executorClick(filter)
 			await this.performSleep();
 			// close the filter
 			await this.executorClick(closeButton);
@@ -289,7 +290,6 @@ class CategoryPage extends Page {
 		if (isLoadNextPageExist) {
 			const loadNextPage = await this._driver.findElement(this._nextPageLocator);
 			// click load next page
-			// await loadNextPage.click();
 			await this.executorClick(loadNextPage);
 			await this.performSleep();
 		}
