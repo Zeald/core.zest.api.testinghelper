@@ -21,10 +21,12 @@ class CategoryPage extends Page {
 	 * @param closeFiltersButtonLocator The locator for close button of filters.
 	 * @param nextPageLocator The next page locator.
 	 * @param loadPageDropDownLocator The category load page locator.
+	 * @param pageLoaderLocator The page loader / spinner locator.
+	 * @param pagesLocator The pages item locator.
 	 */
 	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator,
 		filtersLocator, showFiltersLocator, closeFiltersButtonLocator, nextPageLocator, loadPageDropDownLocator,
-		pagesLocator) {
+		pageLoaderLocator, pagesLocator) {
 		super(webdriver, url);
 
 		this._catViewLocator = catViewLocator;
@@ -35,6 +37,7 @@ class CategoryPage extends Page {
 		this._closeFiltersButtonLocator = closeFiltersButtonLocator;
 		this._nextPageLocator = nextPageLocator;
 		this._loadPageDropDownLocator = loadPageDropDownLocator;
+		this._pageLoaderLocator = pageLoaderLocator;
 		this._pagesLocator = pagesLocator;
 
 		// initialize locators if not defined
@@ -55,6 +58,8 @@ class CategoryPage extends Page {
 		this._loadPageDropDownLocator = notDefined(this._loadPageDropDownLocator) ?
 			By.css('.load-page.drop-select') : this._loadPageDropDownLocator;
 		this._pagesLocator = notDefined(this._pagesLocator) ? By.css('ul > li') : this._pagesLocator;
+		this._pageLoaderLocator = notDefined(this._pageLoaderLocator) ?
+			By.css('.page-loading.loading-spinner') : this._pageLoaderLocator;
 	}
 
 
@@ -101,6 +106,33 @@ class CategoryPage extends Page {
 	 */
 	set nextPageLocator(value) {
 		this._nextPageLocator = value;
+	}
+
+	/**
+	 * Set load page dropdown locator
+	 *
+	 * @param value Locator
+	 */
+	set loadPageDropDownLocator(value) {
+		this._loadPageDropDownLocator = value;
+	}
+
+	/**
+	 * Set page loader / spinner locator
+	 *
+	 * @param value Locator
+	 */
+	set pageLoaderLocator(value) {
+		this._pageLoaderLocator = value;
+	}
+
+	/**
+	 * Set pages item locator
+	 *
+	 * @param value Locator
+	 */
+	set pagesLocator(value) {
+		this._pagesLocator = value;
 	}
 
 	/**
@@ -227,6 +259,12 @@ class CategoryPage extends Page {
 
 		// click load next page
 		await loadNextPage.click();
+
+		// wait until all additional products are loaded
+		const loaderSpinner = await this._driver.findElement(this._pageLoaderLocator);
+		await this._driver.wait(until.elementIsVisible(loaderSpinner));
+		// wait until page loader / spinner is no longer visible
+		await this._driver.wait(until.elementIsNotVisible(loaderSpinner));
 
 		// get the new products list
 		const nextPageProducts = await this.getProductURLs().then((urls) => urls);
