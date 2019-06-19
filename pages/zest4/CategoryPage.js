@@ -262,9 +262,9 @@ class CategoryPage extends Page {
 
 		// wait until all additional products are loaded
 		const loaderSpinner = await this._driver.findElement(this._pageLoaderLocator);
-		await this._driver.wait(until.elementIsVisible(loaderSpinner));
+		await this._driver.wait(until.elementIsVisible(loaderSpinner), 3000);
 		// wait until page loader / spinner is no longer visible
-		await this._driver.wait(until.elementIsNotVisible(loaderSpinner));
+		await this._driver.wait(until.elementIsNotVisible(loaderSpinner), 3000);
 
 		// get the new products list
 		const nextPageProducts = await this.getProductURLs().then((urls) => urls);
