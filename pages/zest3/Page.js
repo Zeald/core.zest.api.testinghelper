@@ -57,9 +57,21 @@ class Page {
 	 */
 	async open() {
 		this._driver.get(this._url);
+		// wait for the ready state
+		await this.waitReadyState();
+	}
 
-		await this._driver.wait(() => {
-			return this._driver.executeScript('return document.readyState').then(function(readyState) {
+	/**
+	 * Wait for the ready state of the page.
+	 *
+	 * @returns {Promise<any>}
+	 */
+	async waitReadyState() {
+		// wait a bit. Give the page a little breathing room before proceeding.
+		await this._driver.sleep(3000);
+
+		return await this._driver.wait(() => {
+			return this._driver.executeScript('return document.readyState').then((readyState) => {
 				return readyState === 'complete';
 			});
 		});
