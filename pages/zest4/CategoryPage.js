@@ -17,10 +17,12 @@ class CategoryPage extends Page {
 	 * @param productLinkLocator The product view locator.
 	 * @param filterGroupLocator The locator for filter groups.
 	 * @param filtersLocator The locator for filter items.
-	 * @param showFiltersLocator
+	 * @param showFiltersLocator The locator for show filters.
+	 * @param closeFiltersButtonLocator The locator for close button of filters.
+	 * @param nextPageLocator Thye next page locator.
 	 */
 	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator,
-		filtersLocator, showFiltersLocator, closeFiltersButtonLocator) {
+		filtersLocator, showFiltersLocator, closeFiltersButtonLocator, nextPageLocator) {
 		super(webdriver, url);
 
 		this._catViewLocator = catViewLocator;
@@ -29,6 +31,7 @@ class CategoryPage extends Page {
 		this._filtersLocator = filtersLocator;
 		this._showFiltersLocator = showFiltersLocator;
 		this._closeFiltersButtonLocator = closeFiltersButtonLocator;
+		this._nextPageLocator = nextPageLocator;
 
 		// initialize locators if not defined
 		this._catViewLocator = notDefined(this._catViewLocator) ?
@@ -44,12 +47,59 @@ class CategoryPage extends Page {
 		this._closeFiltersButtonLocator = notDefined(this._closeFiltersButtonLocator) ?
 			By.xpath("//*[@class='pop-overlay-inner pop-left']//*[@class='close'][contains(text(),'Close')]") :
 			this._closeFiltersButtonLocator;
+		this._nextPageLocator = notDefined(this._nextPageLocator) ? By.css('.load-next') : this._nextPageLocator;
+	}
+
+
+	/**
+	 * Set filter group locator
+	 *
+	 * @param value Locator
+	 */
+	set filterGroupLocator(value) {
+		this._filterGroupLocator = value;
+	}
+
+	/**
+	 * Set filters locator
+	 *
+	 * @param value Locator
+	 */
+	set filtersLocator(value) {
+		this._filtersLocator = value;
+	}
+
+	/**
+	 * Set show filters locator
+	 *
+	 * @param value Locator
+	 */
+	set showFiltersLocator(value) {
+		this._showFiltersLocator = value;
+	}
+
+	/**
+	 * Set close filters button locator
+	 *
+	 * @param value Locator
+	 */
+	set closeFiltersButtonLocator(value) {
+		this._closeFiltersButtonLocator = value;
+	}
+
+	/**
+	 * Set next page locator
+	 *
+	 * @param value Locator
+	 */
+	set nextPageLocator(value) {
+		this._nextPageLocator = value;
 	}
 
 	/**
 	 * Set category view locator
 	 *
-	 * @param value Locator2
+	 * @param value Locator
 	 */
 	set catViewLocator(value) {
 		this._catViewLocator = value;
@@ -129,15 +179,52 @@ class CategoryPage extends Page {
 		// click and check
 		await filter.click();
 
-		// TODO: wait until products view is loaded
+		const closeButton = await this._driver.findElement(this._closeFiltersButtonLocator);
 
 		if (!filterGroupDisplayed) {
 			// close the filter
-			const closeButton = await this._driver.findElement(this._closeFiltersButtonLocator);
+			await closeButton.click();
+		}
+
+		// TODO: wait until products view is loaded
+
+		// open filter and close uncheck
+		if (!filterGroupDisplayed) {
+			await showFilter.click();
+			await filter.click();
+			// close the filter
 			await closeButton.click();
 		}
 
 		return await filter;
+	}
+
+	/**
+	 * Load the next page.
+	 *
+	 * @param categoryURL The URL of the category.
+	 * @returns {Promise<*>}
+	 */
+	async goToNextPage(categoryURL) {
+		if (!notDefined(categoryURL)) {
+			this._url = categoryURL;
+			await this.open();
+		}
+
+		const loadNextPage = await this._driver.findElement(this._nextPageLocator);
+
+		// get the products before loading the next page
+		await this.checkIfProductsExists();
+		const firstPageProducts = await this.getProductURLs().then((urls) => urls);
+
+		// click load next page
+		await loadNextPage.click();
+
+		// get the new products list
+		const nextPageProducts = await this.getProductURLs().then((urls) => urls);
+		const isNextPageProductLoaded = await nextPageProducts.length > firstPageProducts.length;
+
+		return await expect(isNextPageProductLoaded, 'Next page products is not loaded!').to.be.true;
 	}
 
 	/**
