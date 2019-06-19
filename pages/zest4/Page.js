@@ -19,7 +19,7 @@ class Page {
 		this._closeModalButtonLocator = closeModalButtonLocator;
 
 		// explicit sleep in milliseconds for every action
-		this._explicitSleep = 1000;
+		this._explicitSleep = 3000;
 
 		// set the default locator of modal if not specified
 		this._closeModalButtonLocator = notDefined(this._closeModalButtonLocator) ?
