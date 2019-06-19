@@ -19,10 +19,12 @@ class CategoryPage extends Page {
 	 * @param filtersLocator The locator for filter items.
 	 * @param showFiltersLocator The locator for show filters.
 	 * @param closeFiltersButtonLocator The locator for close button of filters.
-	 * @param nextPageLocator Thye next page locator.
+	 * @param nextPageLocator The next page locator.
+	 * @param loadPageDropDownLocator The category load page locator.
 	 */
 	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator,
-		filtersLocator, showFiltersLocator, closeFiltersButtonLocator, nextPageLocator) {
+		filtersLocator, showFiltersLocator, closeFiltersButtonLocator, nextPageLocator, loadPageDropDownLocator,
+		pagesLocator) {
 		super(webdriver, url);
 
 		this._catViewLocator = catViewLocator;
@@ -32,6 +34,8 @@ class CategoryPage extends Page {
 		this._showFiltersLocator = showFiltersLocator;
 		this._closeFiltersButtonLocator = closeFiltersButtonLocator;
 		this._nextPageLocator = nextPageLocator;
+		this._loadPageDropDownLocator = loadPageDropDownLocator;
+		this._pagesLocator = pagesLocator;
 
 		// initialize locators if not defined
 		this._catViewLocator = notDefined(this._catViewLocator) ?
@@ -48,6 +52,9 @@ class CategoryPage extends Page {
 			By.xpath("//*[@class='pop-overlay-inner pop-left']//*[@class='close'][contains(text(),'Close')]") :
 			this._closeFiltersButtonLocator;
 		this._nextPageLocator = notDefined(this._nextPageLocator) ? By.css('.load-next') : this._nextPageLocator;
+		this._loadPageDropDownLocator = notDefined(this._loadPageDropDownLocator) ?
+			By.css('.load-page.drop-select') : this._loadPageDropDownLocator;
+		this._pagesLocator = notDefined(this._pagesLocator) ? By.css('ul > li') : this._pagesLocator;
 	}
 
 
@@ -211,6 +218,7 @@ class CategoryPage extends Page {
 			await this.open();
 		}
 
+		// get the next page button
 		const loadNextPage = await this._driver.findElement(this._nextPageLocator);
 
 		// get the products before loading the next page
@@ -225,6 +233,36 @@ class CategoryPage extends Page {
 		const isNextPageProductLoaded = await nextPageProducts.length > firstPageProducts.length;
 
 		return await expect(isNextPageProductLoaded, 'Next page products is not loaded!').to.be.true;
+	}
+
+	/**
+	 * Go to a random page.
+	 *
+	 * @param categoryURL The URL of the category.
+	 * @returns {Promise<void>}
+	 */
+	async goToRandomPage(categoryURL) {
+		if (!notDefined(categoryURL)) {
+			this._url = categoryURL;
+			await this.open();
+		}
+
+		const pageSelector = await this._driver.findElement(this._loadPageDropDownLocator);
+
+		// click the page selector
+		await pageSelector.click();
+
+		// get all the pages under the drop down
+		const pages = await pageSelector.findElements(this._pagesLocator).then((pages) => pages);
+		// pick a random page to jump in
+		const page = await pickRandom(...pages);
+		// click the page
+		await page.click();
+
+		// verify if there are products
+		await this.checkIfProductsExists();
+
+		return await page;
 	}
 
 	/**
