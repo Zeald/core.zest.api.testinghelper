@@ -67,14 +67,21 @@ class Page {
 	 * @returns {Promise<any>}
 	 */
 	async waitReadyState() {
-		// wait a bit. Give the page a little breathing room before proceeding.
-		await this._driver.sleep(3000);
-
 		return await this._driver.wait(() => {
 			return this._driver.executeScript('return document.readyState').then((readyState) => {
 				return readyState === 'complete';
 			});
 		});
+	}
+
+	/**
+	 * Specialized way to click an element especially when the element is not clickable even page is fully loaded.
+	 *
+	 * @param element HTML element
+	 * @returns {Promise<void>}
+	 */
+	async executorClick(element) {
+		return await this._driver.executeScript('arguments[0].click();', element);
 	}
 
 	/**
