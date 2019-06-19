@@ -1,6 +1,6 @@
 const { By, until } = require('selenium-webdriver');
 const { expect } = require('chai');
-const { notDefined } = require('../../helpers/functions');
+const { notDefined, pickRandom } = require('../../helpers/functions');
 const { Page } = require('./Page');
 
 /**
@@ -13,20 +13,28 @@ class CategoryPage extends Page {
 	 *
 	 * @param webdriver Selenium web driver.
 	 * @param url The url of the page.
-	 * @param catViewLocator The category view locator
-	 * @param productLinkLocator The product view locator
+	 * @param catViewLocator The category view locator.
+	 * @param productLinkLocator The product view locator.
+	 * @param filterGroupLocator The locator for filter groups.
+	 * @param filtersLocator The locator for filter items.
 	 */
-	constructor(webdriver, url, catViewLocator, productLinkLocator) {
+	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator, filtersLocator) {
 		super(webdriver, url);
 
 		this._catViewLocator = catViewLocator;
 		this._productLinkLocator = productLinkLocator;
+		this._filterGroupLocator = filterGroupLocator;
+		this._filtersLocator = filtersLocator;
 
 		// initialize locators if not defined
 		this._catViewLocator = notDefined(this._catViewLocator) ?
 			By.css('div.catview') : this._catViewLocator;
 		this._productLinkLocator = notDefined(this._productLinkLocator) ?
 			By.css('.product-collection .product-card a') : this._productLinkLocator;
+		this._filterGroupLocator = notDefined(this._filterGroupLocator) ?
+			By.css('.filter-collection > .filter-group') : this._filterGroupLocator;
+		this._filtersLocator = notDefined(this._filtersLocator) ?
+			By.css('ul > li.filter') : this._filtersLocator;
 	}
 
 	/**
@@ -85,6 +93,28 @@ class CategoryPage extends Page {
 
 		const exists = productURLs && Array.isArray(productURLs) && productURLs.length > 0;
 		return await expect(exists, 'Category products does not exist!').to.be.true;
+	}
+
+	/**
+	 * Apply random product filter
+	 *
+	 * @returns {Promise<void>}
+	 */
+	async applyRandomProductFilter() {
+		const filterGroups = await this._driver.findElements(this._filterGroupLocator).then((groups) => groups);
+
+		// pick a filter group
+		const filterGroup = await pickRandom(...filterGroups);
+		// pick a filter to click
+		const filters = await filterGroup.findElement(this._filtersLocator).then((filters) => filters);
+		const filter = await pickRandom(...filters);
+
+		// click and check
+		await filter.click();
+
+		// TODO: wait until products view is loaded
+
+		return await filter;
 	}
 
 	/**
