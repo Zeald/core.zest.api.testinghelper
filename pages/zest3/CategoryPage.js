@@ -83,7 +83,7 @@ class CategoryPage extends Page {
 
 		const productURLs = await this.getProductURLs().then((urls) => urls);
 
-		const exists = productURLs && Array.isArray(productURLs) && productURLs.length;
+		const exists = productURLs && Array.isArray(productURLs) && productURLs.length > 0;
 		return await expect(exists, 'Category products does not exist!').to.be.true;
 	}
 
