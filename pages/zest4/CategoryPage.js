@@ -283,9 +283,9 @@ class CategoryPage extends Page {
 		await loadNextPage.click();
 		await this.checkIfProductsExists();
 
-		// get the new products list
+		// get the new products list if there's any
 		const nextPageProducts = await this.getProductURLs().then((urls) => urls);
-		const isNextPageProductLoaded = await nextPageProducts.length > firstPageProducts.length;
+		const isNextPageProductLoaded = await nextPageProducts.length >= firstPageProducts.length;
 
 		return await expect(isNextPageProductLoaded, 'Next page products is not loaded!').to.be.true;
 	}
