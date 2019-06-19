@@ -1,4 +1,5 @@
 const { By, until } = require('selenium-webdriver');
+const { expect } = require('chai');
 const { notDefined } = require('../../helpers/functions');
 const { Page } = require('./Page');
 
@@ -66,6 +67,24 @@ class CategoryPage extends Page {
 
 		this._productURLs = await this.resolveURLs(productURLs).then((urls) => urls);
 		return this._productURLs;
+	}
+
+	/**
+	 * Verify if products do exist in this certain category.
+	 *
+	 * @param categoryURL The URL of the category.
+	 * @returns {Promise<*>}
+	 */
+	async checkIfProductsExists(categoryURL) {
+		if (!notDefined(categoryURL)) {
+			this._url = categoryURL;
+			await this.open();
+		}
+
+		const productURLs = await this.getProductURLs().then((urls) => urls);
+
+		const exists = productURLs && Array.isArray(productURLs) && productURLs.length;
+		return await expect(exists, 'Category products does not exist!').to.be.true;
 	}
 
 	/**
