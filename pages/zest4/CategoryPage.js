@@ -437,7 +437,7 @@ class CategoryPage extends Page {
 	/**
 	 * Execute product sort
 	 *
-	 * @param sortIndex Index of the sort option
+	 * @param sortIndex Index of the sort option.
 	 * @param categoryURL categoryURL The URL of the category.
 	 * @returns {Promise<*>}
 	 */
@@ -450,7 +450,7 @@ class CategoryPage extends Page {
 		sortIndex = notDefined(sortIndex) ? 0 : sortIndex;
 
 		// get the original list of product titles in the current order.
-		const productTitlesOriginalOrder = await this.getProductTitles();
+		const productTitlesOriginalOrder = await this.getProductTitles().then((titles) => titles);
 
 		const productSortingSelect = await this._driver.findElement(this._productSortingLocator);
 		// scroll tp the sorting dropdown
@@ -466,10 +466,10 @@ class CategoryPage extends Page {
 		await options[sortIndex].click();
 
 		// put sleep here just to be sure that loader has gone away and products are loaded.
-		await this.performSleep(5000);
+		await this.performSleep(6000);
 
 		// get the original list of products in their new order
-		const productTitlesNewOrder = await this.getProductTitles();
+		const productTitlesNewOrder = await this.getProductTitles().then((titles) => titles);
 
 		// compare if still exactly the same order
 		const result = await isEqual(productTitlesOriginalOrder, productTitlesNewOrder);
@@ -515,10 +515,44 @@ class CategoryPage extends Page {
 
 		// verify if the product is already in the cart using the product title
 		const productTitle = await productContainer.findElement(By.css('.item-title')).getText().then((text) => text);
-		const popupProductTitles = await popupCart.findElements(By.css('.product-title')).getText().then((text) => text);
+		const popupProductTitles = await popupCart.findElements(By.css('.product-title'));
+		const titlePromises = [];
 
-		const isProductPresent = popupProductTitles.find((title) => isEqual(title, productTitle));
+		await popupProductTitles.forEach((popupTitle) => {
+			titlePromises.push(popupTitle.getText());
+		});
+
+		const popupTitles = await Promise.all(titlePromises).then((titles) => titles);
+
+		const isProductPresent = await popupTitles.find((title) => {
+			return isEqual(productTitle, title);
+		});
+
 		return await expect(isProductPresent, 'Product not in the cart!').to.be.true;
+	}
+
+	/**
+	 * Add a product to favourites.
+	 *
+	 * @param productIndex Index of the product in the list.
+	 * @returns {Promise<T | boolean>}
+	 */
+	async addProductToFavourites(productIndex) {
+		let productContainer = null;
+		const productContainers = await this.getProductContainers().then((containers) => containers);
+
+		if (notDefined(productIndex)) {
+			productContainer = await pickRandom(...productContainers);
+		} else {
+			productContainer = await productContainers[productIndex];
+		}
+
+		return await productContainer.findElement(By.css('.add-favourite:not(.selected)')).then((button) => {
+			return button.click();
+		}).catch(() => {
+			// do nothing this means that the button already clicked previously.
+			return false;
+		});
 	}
 
 	/**
