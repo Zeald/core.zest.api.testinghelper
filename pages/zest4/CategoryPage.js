@@ -25,10 +25,14 @@ class CategoryPage extends Page {
 	 * @param pagesLocator The pages item locator.
 	 * @param productSortingLocator The locator for sorting of products.
 	 * @param productContainerLocator The locator for each container of the product.
+	 * @param productSelectOptionsLocator The locator for select options button for each product.
+	 * @param productAddToCartLocator The locator for add to cart for each product.
+	 * @param popupCartLocator The locator for the popup cart.
 	 */
 	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator,
 		filtersLocator, showFiltersLocator, closeFiltersButtonLocator, nextPageLocator, loadPageDropDownLocator,
-		pageLoaderLocator, pagesLocator, productSortingLocator, productContainerLocator) {
+		pageLoaderLocator, pagesLocator, productSortingLocator, productContainerLocator, productSelectOptionsLocator,
+		productAddToCartLocator, popupCartLocator) {
 		super(webdriver, url);
 
 		this._catViewLocator = catViewLocator;
@@ -43,6 +47,9 @@ class CategoryPage extends Page {
 		this._pagesLocator = pagesLocator;
 		this._productSortingLocator = productSortingLocator;
 		this._productContainerLocator = productContainerLocator;
+		this._productSelectOptionsLocator = productSelectOptionsLocator;
+		this._productAddToCartLocator = productAddToCartLocator;
+		this._popupCartLocator = popupCartLocator;
 
 		// initialize locators if not defined
 		this._catViewLocator = notDefined(this._catViewLocator) ?
@@ -68,6 +75,11 @@ class CategoryPage extends Page {
 			By.css(".sort > select[name='item_sort_by'].sort-by") : this._productSortingLocator;
 		this._productContainerLocator = notDefined(this._productContainerLocator) ?
 			By.css('.product-card') : this._productContainerLocator;
+		this._productSelectOptionsLocator = notDefined(this._productSelectOptionsLocator) ?
+			By.css('.select-options') : this._productSelectOptionsLocator;
+		this._productAddToCartLocator = notDefined(this._productAddToCartLocator) ?
+			By.css('.select-options') : this._productAddToCartLocator;
+		this._popupCartLocator = notDefined(this._popupCartLocator) ? By.css('.popup-cart') : this._popupCartLocator;
 	}
 
 
@@ -177,6 +189,33 @@ class CategoryPage extends Page {
 	 */
 	set productContainerLocator(value) {
 		this._productContainerLocator = value;
+	}
+
+	/**
+	 * Set product select options locator
+	 *
+	 * @param value Locator
+	 */
+	set productSelectOptionsLocator(value) {
+		this._productSelectOptionsLocator = value;
+	}
+
+	/**
+	 * Set product add to cart locator
+	 *
+	 * @param value Locator
+	 */
+	set productAddToCartLocator(value) {
+		this._productAddToCartLocator = value;
+	}
+
+	/**
+	 * Set popup cart locator
+	 *
+	 * @param value Locator
+	 */
+	set popupCartLocator(value) {
+		this._popupCartLocator = value;
 	}
 
 	/**
@@ -436,6 +475,48 @@ class CategoryPage extends Page {
 		const result = await isEqual(productTitlesOriginalOrder, productTitlesNewOrder);
 
 		return await expect(result, 'No ordering happened!').to.be.false;
+	}
+
+	/**
+	 * Add product to cart
+	 *
+	 * @param productIndex Index of the product in the list.
+	 * @returns {Promise<*>}
+	 */
+	async addProductToCart(productIndex) {
+		let productContainer = null;
+		const productContainers = await this.getProductContainers().then((containers) => containers);
+
+		if (notDefined(productIndex)) {
+			productContainer = await pickRandom(...productContainers);
+		} else {
+			productContainer = await productContainers[productIndex];
+		}
+
+		// scroll to this product
+		await this.scrollTo(productContainer);
+
+		const addToCartButton = await productContainer.findElement(this._productAddToCartLocator);
+		const selectOptionsButton = await productContainer.findElement(this._productSelectOptionsLocator);
+
+		// if add to cart is visible then click add to cart immediately
+		const addToCartVisible = await addToCartButton.isDisplayed().then((displayed) => displayed);
+		if (!addToCartVisible) {
+			await selectOptionsButton.click();
+		}
+
+		await addToCartButton.click();
+		await this.performSleep();
+
+		// wait for the popup cart to show up
+		const popupCart = await this._driver.findElement(this._popupCartLocator);
+		await this._driver.wait(until.elementIsVisible(popupCart), 5000);
+
+		// verify if the product is already in the cart using the product title
+		const productTitle = await productContainer.findElement(By.css('.item-title')).getText().then((text) => text);
+		const popupProductTitle = await popupCart.findElement(By.css('.product-title')).getText().then((text) => text);
+		const isProductPresent = isEqual(productTitle, popupProductTitle);
+		return await expect(isProductPresent, 'Product not in the cart!').to.be.true;
 	}
 
 	/**
