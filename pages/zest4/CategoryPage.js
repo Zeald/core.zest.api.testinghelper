@@ -502,7 +502,7 @@ class CategoryPage extends Page {
 		// if add to cart is visible then click add to cart immediately
 		const addToCartVisible = await addToCartButton.isDisplayed().then((displayed) => displayed);
 		if (!addToCartVisible) {
-			await this.hoverTo(selectOptionsButton);
+			await this.hoverTo(productContainer);
 			await selectOptionsButton.click();
 		}
 
