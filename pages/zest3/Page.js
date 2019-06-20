@@ -97,6 +97,16 @@ class Page {
 	}
 
 	/**
+	 * Scroll to the element
+	 *
+	 * @param element HTML element
+	 * @returns {Promise<void>}
+	 */
+	async scrollTo(element) {
+		return await this._driver.executeScript('arguments[0].scrollIntoView();', element);
+	}
+
+	/**
 	 * Perform pause or sleep
 	 *
 	 * @returns {Promise<void>}
