@@ -1,6 +1,6 @@
 const { By, until } = require('selenium-webdriver');
 const { expect } = require('chai');
-const { notDefined, pickRandom } = require('../../helpers/functions');
+const { notDefined, pickRandom, isEqual } = require('../../helpers/functions');
 const { Page } = require('./Page');
 
 /**
@@ -23,10 +23,11 @@ class CategoryPage extends Page {
 	 * @param loadPageDropDownLocator The category load page locator.
 	 * @param pageLoaderLocator The page loader / spinner locator.
 	 * @param pagesLocator The pages item locator.
+	 * @param productSortingLocator The locator for sorting of products.
 	 */
 	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator,
 		filtersLocator, showFiltersLocator, closeFiltersButtonLocator, nextPageLocator, loadPageDropDownLocator,
-		pageLoaderLocator, pagesLocator) {
+		pageLoaderLocator, pagesLocator, productSortingLocator) {
 		super(webdriver, url);
 
 		this._catViewLocator = catViewLocator;
@@ -39,6 +40,7 @@ class CategoryPage extends Page {
 		this._loadPageDropDownLocator = loadPageDropDownLocator;
 		this._pageLoaderLocator = pageLoaderLocator;
 		this._pagesLocator = pagesLocator;
+		this._productSortingLocator = productSortingLocator;
 
 		// initialize locators if not defined
 		this._catViewLocator = notDefined(this._catViewLocator) ?
@@ -60,6 +62,8 @@ class CategoryPage extends Page {
 		this._pagesLocator = notDefined(this._pagesLocator) ? By.css('ul > li') : this._pagesLocator;
 		this._pageLoaderLocator = notDefined(this._pageLoaderLocator) ?
 			By.css('.page-loading.loading-spinner') : this._pageLoaderLocator;
+		this._productSortingLocator = notDefined(this._productSortingLocator) ?
+			By.css(".sort > select[name='item_sort_by'].sort-by") : this._productSortingLocator;
 	}
 
 
@@ -133,6 +137,15 @@ class CategoryPage extends Page {
 	 */
 	set pagesLocator(value) {
 		this._pagesLocator = value;
+	}
+
+	/**
+	 * Set product sorting locator
+	 *
+	 * @param value Locator
+	 */
+	set productSortingLocator(value) {
+		this._productSortingLocator = value;
 	}
 
 	/**
@@ -340,6 +353,47 @@ class CategoryPage extends Page {
 		await this.checkIfProductsExists();
 
 		return await page;
+	}
+
+	/**
+	 * Execute product sort
+	 *
+	 * @param sortIndex Index of the sort option
+	 * @param categoryURL categoryURL The URL of the category.
+	 * @returns {Promise<*>}
+	 */
+	async productSort(sortIndex, categoryURL) {
+		if (!notDefined(categoryURL)) {
+			this._url = categoryURL;
+			await this.open();
+		}
+
+		sortIndex = notDefined(sortIndex) ? 0 : sortIndex;
+
+		// get the original list of products and their order
+		const originalOrderedURLS = await this.getProductURLs();
+
+		const productSortingSelect = await this._driver.findElement(this._productSortingLocator);
+		// scroll tp the sorting dropdown
+		await this.scrollTo(productSortingSelect);
+		await this.performSleep();
+		// click it
+		await productSortingSelect.click();
+
+		// get all the elements under it
+		const options = await productSortingSelect.findElements(By.css('option')).then((options) => options);
+		await this.performSleep();
+		// click the option
+		await options[sortIndex].click();
+		await this.performSleep();
+
+		// get the original list of products and their order
+		const newOrderedURLS = await this.getProductURLs();
+
+		// compare if still exactly the same order
+		const result = await isEqual(originalOrderedURLS, newOrderedURLS);
+
+		return await expect(result, 'No ordering happened!').to.be.false;
 	}
 
 	/**
