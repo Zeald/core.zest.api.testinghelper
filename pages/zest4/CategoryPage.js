@@ -507,8 +507,9 @@ class CategoryPage extends Page {
 		}
 
 		await this.executorClick(addToCartButton);
-		await this.performSleep();
+		return await this.performSleep();
 
+		/*
 		// wait for the popup cart to show up
 		const popupCart = await this._driver.findElement(this._popupCartLocator);
 		await this._driver.wait(until.elementIsVisible(popupCart));
@@ -529,6 +530,7 @@ class CategoryPage extends Page {
 		});
 
 		return await expect(isProductPresent, 'Product not in the cart!').to.be.true;
+		 */
 	}
 
 	/**
@@ -546,6 +548,9 @@ class CategoryPage extends Page {
 		} else {
 			productContainer = await productContainers[productIndex];
 		}
+
+		// scroll to this product
+		await this.scrollTo(productContainer);
 
 		return await productContainer.findElement(By.css('.add-favourite:not(.selected)')).then((button) => {
 			return button.click();
