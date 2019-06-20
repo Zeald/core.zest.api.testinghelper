@@ -50,7 +50,7 @@ class CategoryPage extends Page {
 		this._filterGroupLocator = notDefined(this._filterGroupLocator) ?
 			By.css('.filter-collection > .filter-group') : this._filterGroupLocator;
 		this._filtersLocator = notDefined(this._filtersLocator) ?
-			By.css('ul > li.filter') : this._filtersLocator;
+			By.css('ul > li:not(.empty).filter') : this._filtersLocator;
 		this._showFiltersLocator = notDefined(this._showFiltersLocator) ?
 			By.css('.top-filters .show-filters') : this._showFiltersLocator;
 		this._closeFiltersButtonLocator = notDefined(this._closeFiltersButtonLocator) ?
@@ -386,12 +386,13 @@ class CategoryPage extends Page {
 		await this.performSleep();
 		// click the option
 		await options[sortIndex].click();
-		await this.performSleep();
 
 		// wait until the loader / spinner disappears
 		const loaderSpinner = await this._driver.findElement(this._pageLoaderLocator);
 		await this._driver.wait(until.elementIsNotVisible(loaderSpinner), 5000);
-		await this.performSleep();
+
+		// put sleep here just to be sure that loader has gone away and products are loaded.
+		await this.performSleep(5000);
 
 		// get the original list of products and their order
 		const newOrderedURLS = await this.getProductURLs();
