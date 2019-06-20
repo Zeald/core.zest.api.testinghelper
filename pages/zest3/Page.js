@@ -109,10 +109,12 @@ class Page {
 	/**
 	 * Perform pause or sleep
 	 *
+	 * @param timeout Time out in milliseconds
 	 * @returns {Promise<void>}
 	 */
-	async performSleep() {
-		return await this._driver.sleep(this._explicitSleep);
+	async performSleep(timeout) {
+		const time = notDefined(timeout) ? this._explicitSleep : timeout;
+		return await this._driver.sleep(time);
 	}
 
 	/**
