@@ -502,10 +502,10 @@ class CategoryPage extends Page {
 		// if add to cart is visible then click add to cart immediately
 		const addToCartVisible = await addToCartButton.isDisplayed().then((displayed) => displayed);
 		if (!addToCartVisible) {
-			await selectOptionsButton.click();
+			await this.executorClick(selectOptionsButton);
 		}
 
-		await addToCartButton.click();
+		await this.executorClick(addToCartButton);
 		await this.performSleep();
 
 		// wait for the popup cart to show up
