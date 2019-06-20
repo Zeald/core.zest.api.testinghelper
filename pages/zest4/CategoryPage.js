@@ -24,10 +24,11 @@ class CategoryPage extends Page {
 	 * @param pageLoaderLocator The page loader / spinner locator.
 	 * @param pagesLocator The pages item locator.
 	 * @param productSortingLocator The locator for sorting of products.
+	 * @param productContainerLocator The locator for each container of the product.
 	 */
 	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator,
 		filtersLocator, showFiltersLocator, closeFiltersButtonLocator, nextPageLocator, loadPageDropDownLocator,
-		pageLoaderLocator, pagesLocator, productSortingLocator) {
+		pageLoaderLocator, pagesLocator, productSortingLocator, productContainerLocator) {
 		super(webdriver, url);
 
 		this._catViewLocator = catViewLocator;
@@ -41,6 +42,7 @@ class CategoryPage extends Page {
 		this._pageLoaderLocator = pageLoaderLocator;
 		this._pagesLocator = pagesLocator;
 		this._productSortingLocator = productSortingLocator;
+		this._productContainerLocator = productContainerLocator;
 
 		// initialize locators if not defined
 		this._catViewLocator = notDefined(this._catViewLocator) ?
@@ -64,6 +66,8 @@ class CategoryPage extends Page {
 			By.css('.loading-overlay') : this._pageLoaderLocator;
 		this._productSortingLocator = notDefined(this._productSortingLocator) ?
 			By.css(".sort > select[name='item_sort_by'].sort-by") : this._productSortingLocator;
+		this._productContainerLocator = notDefined(this._productContainerLocator) ?
+			By.css('.product-card') : this._productContainerLocator;
 	}
 
 
@@ -167,6 +171,15 @@ class CategoryPage extends Page {
 	}
 
 	/**
+	 * Set product container locator
+	 *
+	 * @param value Locator
+	 */
+	set productContainerLocator(value) {
+		this._productContainerLocator = value;
+	}
+
+	/**
 	 * Get the product url
 	 *
 	 * @returns {Promise<any[]|*>}
@@ -186,6 +199,32 @@ class CategoryPage extends Page {
 
 		this.productURLs = await this.resolveURLs(productURLs).then((urls) => urls);
 		return await this.productURLs;
+	}
+
+	/**
+	 * Get the product containers
+	 *
+	 * @returns {Promise<*|Array>}
+	 */
+	async getProductContainers() {
+		// get the containers
+		return await this._driver.findElements(this._productContainerLocator);
+	}
+
+	/**
+	 * Get the product titles
+	 *
+	 * @returns {Promise<any[]>}
+	 */
+	async getProductTitles() {
+		const productContainers = await this.getProductContainers().then((containers) => containers);
+		const titlePromises = [];
+
+		await productContainers.forEach((container) => {
+			titlePromises.push(container.findElement(By.css('.item-title')).getText());
+		});
+
+		return await Promise.all(titlePromises);
 	}
 
 	/**
@@ -371,8 +410,8 @@ class CategoryPage extends Page {
 
 		sortIndex = notDefined(sortIndex) ? 0 : sortIndex;
 
-		// get the original list of products and their order
-		const originalOrderedURLS = await this.getProductURLs();
+		// get the original list of product titles in the current order.
+		const productTitlesOriginalOrder = await this.getProductTitles();
 
 		const productSortingSelect = await this._driver.findElement(this._productSortingLocator);
 		// scroll tp the sorting dropdown
@@ -383,22 +422,18 @@ class CategoryPage extends Page {
 
 		// get all the elements under it
 		const options = await productSortingSelect.findElements(By.css('option')).then((options) => options);
-		await this.performSleep();
+		await this.performSleep(1000);
 		// click the option
 		await options[sortIndex].click();
-
-		// wait until the loader / spinner disappears
-		const loaderSpinner = await this._driver.findElement(this._pageLoaderLocator);
-		await this._driver.wait(until.elementIsNotVisible(loaderSpinner), 5000);
 
 		// put sleep here just to be sure that loader has gone away and products are loaded.
 		await this.performSleep(5000);
 
-		// get the original list of products and their order
-		const newOrderedURLS = await this.getProductURLs();
+		// get the original list of products in their new order
+		const productTitlesNewOrder = await this.getProductTitles();
 
 		// compare if still exactly the same order
-		const result = await isEqual(originalOrderedURLS, newOrderedURLS);
+		const result = await isEqual(productTitlesOriginalOrder, productTitlesNewOrder);
 
 		return await expect(result, 'No ordering happened!').to.be.false;
 	}
@@ -411,7 +446,7 @@ class CategoryPage extends Page {
 	 */
 	async resolveURLs(urlPromises) {
 		const promises = [];
-		urlPromises.forEach((element) => {
+		await urlPromises.forEach((element) => {
 			promises.push(element.getAttribute('href'));
 		});
 
