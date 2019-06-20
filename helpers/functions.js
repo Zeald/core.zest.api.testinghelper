@@ -1,3 +1,5 @@
+const { _ } = require('underscore');
+
 /**
  * Check variable if undefined, null or empty.
  *
@@ -18,6 +20,18 @@ const pickRandom = (...items) => {
 	return items[Math.floor(Math.random()*items.length)];
 };
 
+/**
+ * Compare 2 arrays or objects if equal.
+ *
+ * @param item1 First item
+ * @param item2 Second item
+ * @return boolean
+ */
+const isEqual = (item1, item2) => {
+	return _.isEqual(item1, item2);
+};
+
 module.exports.notDefined = notDefined;
 module.exports.pickRandom = pickRandom;
+module.exports.isEqual = isEqual;
 
