@@ -61,7 +61,7 @@ class CategoryPage extends Page {
 			By.css('.load-page.drop-select') : this._loadPageDropDownLocator;
 		this._pagesLocator = notDefined(this._pagesLocator) ? By.css('ul > li') : this._pagesLocator;
 		this._pageLoaderLocator = notDefined(this._pageLoaderLocator) ?
-			By.css('.page-loading.loading-spinner') : this._pageLoaderLocator;
+			By.css('.loading-overlay') : this._pageLoaderLocator;
 		this._productSortingLocator = notDefined(this._productSortingLocator) ?
 			By.css(".sort > select[name='item_sort_by'].sort-by") : this._productSortingLocator;
 	}
@@ -185,7 +185,7 @@ class CategoryPage extends Page {
 		}
 
 		this.productURLs = await this.resolveURLs(productURLs).then((urls) => urls);
-		return this.productURLs;
+		return await this.productURLs;
 	}
 
 	/**
@@ -259,6 +259,7 @@ class CategoryPage extends Page {
 		if (!filterGroupDisplayed) {
 			// use executor to click at this point since there are instances show filter is not clickable
 			await this.executorClick(showFilter);
+			await this.performSleep();
 			await filter.click();
 			await this.performSleep();
 			// close the filter
@@ -385,6 +386,11 @@ class CategoryPage extends Page {
 		await this.performSleep();
 		// click the option
 		await options[sortIndex].click();
+		await this.performSleep();
+
+		// wait until the loader / spinner disappears
+		const loaderSpinner = await this._driver.findElement(this._pageLoaderLocator);
+		await this._driver.wait(until.elementIsNotVisible(loaderSpinner), 5000);
 		await this.performSleep();
 
 		// get the original list of products and their order
