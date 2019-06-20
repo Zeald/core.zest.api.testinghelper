@@ -113,7 +113,12 @@ class Page {
 	 * @returns {Promise<void>}
 	 */
 	async hoverTo(element) {
-		return await this._driver.actions().mouseMove(element, { x: 5, y: 5 }).perform();
+		return await this._driver.actions().move({
+			duration: 2,
+			origin: element,
+			x: 5,
+			y: 5
+		}).perform();
 	}
 
 	/**
