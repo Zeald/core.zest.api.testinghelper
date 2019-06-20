@@ -107,6 +107,16 @@ class Page {
 	}
 
 	/**
+	 * Hover mouse to the element
+	 *
+	 * @param element HTML element
+	 * @returns {Promise<void>}
+	 */
+	async hoverTo(element) {
+		return await this._driver.actions().mouseMove(element, { x: 5, y: 5 }).perform();
+	}
+
+	/**
 	 * Perform pause or sleep
 	 *
 	 * @param timeout Time out in milliseconds
