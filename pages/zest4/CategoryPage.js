@@ -229,8 +229,7 @@ class CategoryPage extends Page {
 		const filter = await pickRandom(...filters);
 
 		// click and check
-		// await filter.click();
-		await this.executorClick(filter)
+		await filter.click();
 		await this.performSleep();
 
 		const closeButton = await this._driver.findElement(this._closeFiltersButtonLocator);
@@ -246,10 +245,8 @@ class CategoryPage extends Page {
 		// open filter and close uncheck
 		if (!filterGroupDisplayed) {
 			// use executor to click at this point since there are instances show filter is not clickable
-			// await showFilter.click();
 			await this.executorClick(showFilter);
-			await this.performSleep();
-			await this.executorClick(filter)
+			await filter.click();
 			await this.performSleep();
 			// close the filter
 			await this.executorClick(closeButton);
@@ -289,8 +286,12 @@ class CategoryPage extends Page {
 
 		if (isLoadNextPageExist) {
 			const loadNextPage = await this._driver.findElement(this._nextPageLocator);
+			// scroll to the next page button
+			await this.scrollTo(loadNextPage);
+			await this.performSleep();
+
 			// click load next page
-			await this.executorClick(loadNextPage);
+			await loadNextPage.click();
 			await this.performSleep();
 		}
 
@@ -319,6 +320,8 @@ class CategoryPage extends Page {
 		await this.waitReadyState();
 
 		const pageSelector = await this._driver.findElement(this._loadPageDropDownLocator);
+		await this.scrollTo(pageSelector);
+		await this.performSleep();
 
 		// click the page selector
 		await pageSelector.click();
