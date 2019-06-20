@@ -78,7 +78,7 @@ class CategoryPage extends Page {
 		this._productSelectOptionsLocator = notDefined(this._productSelectOptionsLocator) ?
 			By.css('.select-options') : this._productSelectOptionsLocator;
 		this._productAddToCartLocator = notDefined(this._productAddToCartLocator) ?
-			By.css('.select-options') : this._productAddToCartLocator;
+			By.css('.add-to-cart') : this._productAddToCartLocator;
 		this._popupCartLocator = notDefined(this._popupCartLocator) ? By.css('.popup-cart') : this._popupCartLocator;
 	}
 
