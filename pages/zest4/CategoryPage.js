@@ -502,20 +502,22 @@ class CategoryPage extends Page {
 		// if add to cart is visible then click add to cart immediately
 		const addToCartVisible = await addToCartButton.isDisplayed().then((displayed) => displayed);
 		if (!addToCartVisible) {
-			await this.executorClick(selectOptionsButton);
+			await this.hoverTo(selectOptionsButton);
+			await selectOptionsButton.click();
 		}
 
-		await this.executorClick(addToCartButton);
+		await addToCartButton.click();
 		await this.performSleep();
 
 		// wait for the popup cart to show up
 		const popupCart = await this._driver.findElement(this._popupCartLocator);
-		await this._driver.wait(until.elementIsVisible(popupCart), 5000);
+		await this._driver.wait(until.elementIsVisible(popupCart));
 
 		// verify if the product is already in the cart using the product title
 		const productTitle = await productContainer.findElement(By.css('.item-title')).getText().then((text) => text);
-		const popupProductTitle = await popupCart.findElement(By.css('.product-title')).getText().then((text) => text);
-		const isProductPresent = isEqual(productTitle, popupProductTitle);
+		const popupProductTitles = await popupCart.findElements(By.css('.product-title')).getText().then((text) => text);
+
+		const isProductPresent = popupProductTitles.find((title) => isEqual(title, productTitle));
 		return await expect(isProductPresent, 'Product not in the cart!').to.be.true;
 	}
 
