@@ -435,9 +435,9 @@ class CategoryPage extends Page {
 	}
 
 	/**
-	 * Execute product sort
+	 * Execute product sort.
 	 *
-	 * @param sortIndex Index of the sort option.
+	 * @param sortIndex Index of the sort option
 	 * @param categoryURL categoryURL The URL of the category.
 	 * @returns {Promise<*>}
 	 */
@@ -478,7 +478,7 @@ class CategoryPage extends Page {
 	}
 
 	/**
-	 * Add product to cart
+	 * Add product to cart.
 	 *
 	 * @param productIndex Index of the product in the list.
 	 * @returns {Promise<*>}
@@ -507,25 +507,25 @@ class CategoryPage extends Page {
 		}
 
 		await this.executorClick(addToCartButton);
-		return await this.performSleep();
+		await this.performSleep();
 
 		// wait for the popup cart to show up
 		const popupCart = await this._driver.findElement(this._popupCartLocator);
 		await this._driver.wait(until.elementIsVisible(popupCart));
 
 		// verify if the product is already in the cart using the product title
-		const productSKU = await productContainer.getAttribute('data-sku').then((sku) => sku);
-		const popupProductSKUs = await popupCart.findElements(By.css('.sku'));
-		const skuPromises = [];
+		const productTitle = await productContainer.findElement(By.css('.item-title')).getText().then((text) => text);
+		const popupProductTitles = await popupCart.findElements(By.css('.product-title'));
+		const titlePromises = [];
 
-		await popupProductSKUs.forEach((sku) => {
-			skuPromises.push(sku.getText());
+		await popupProductTitles.forEach((popupTitle) => {
+			titlePromises.push(popupTitle.getText());
 		});
 
-		const skus = await Promise.all(skuPromises).then((skus) => skus);
+		const popupTitles = await Promise.all(titlePromises).then((titles) => titles);
 
-		const isProductPresent = await skus.find((sku) => {
-			return isEqual(productSKU, sku);
+		const isProductPresent = await popupTitles.find((title) => {
+			return isEqual(productTitle.toUpperCase(), title);
 		});
 
 		return await expect(isProductPresent, 'Product not in the cart!').to.be.true;
@@ -559,7 +559,7 @@ class CategoryPage extends Page {
 	}
 
 	/**
-	 * Resolve url promises to extract href attribute
+	 * Resolve url promises to extract href attribute.
 	 *
 	 * @param urlPromises URL element promises
 	 * @return {Promise<any[]>}
