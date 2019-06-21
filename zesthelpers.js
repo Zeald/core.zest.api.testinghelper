@@ -1,4 +1,4 @@
-const { notDefined } = require('./helpers/functions');
+const { notDefined, isEqual, pickRandom } = require('./helpers/functions');
 const { ZestApi } = require('./helpers/ZestApi');
 
 // Zest 4 Pages
@@ -23,6 +23,8 @@ const Zest3ReceiptPage = require('./pages/zest3/ReceiptPage').ReceiptPage;
 
 // export helper modules
 module.exports.notDefined = notDefined;
+module.exports.isEqual = isEqual;
+module.exports.pickRandom = pickRandom;
 module.exports.ZestApi = ZestApi;
 // export zest4 pages class
 module.exports.Zest4CategoryPage = Zest4CategoryPage;
