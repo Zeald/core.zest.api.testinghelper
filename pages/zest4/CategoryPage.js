@@ -287,7 +287,7 @@ class CategoryPage extends Page {
 		const titlePromises = [];
 
 		await productContainers.forEach((container) => {
-			titlePromises.push(container.findElement(By.css('.item-title')).getText());
+			titlePromises.push(container.findElement(this._productItemTitleLocator).getText());
 		});
 
 		return await Promise.all(titlePromises);
@@ -473,6 +473,9 @@ class CategoryPage extends Page {
 			await this.open();
 		}
 
+		// wait for ready state
+		await this.waitReadyState();
+
 		sortIndex = notDefined(sortIndex) ? 0 : sortIndex;
 
 		// get the original list of product titles in the current order.
@@ -523,11 +526,16 @@ class CategoryPage extends Page {
 		await this.scrollTo(productContainer);
 
 		const addToCartButton = await productContainer.findElement(this._productAddToCartLocator);
-		const selectOptionsButton = await productContainer.findElement(this._productSelectOptionsLocator);
+		const selectOptionsButton = await productContainer.findElement(this._productSelectOptionsLocator)
+			.then((element) => element)
+			.catch((err) => {
+				// Possibly that the product has no options.
+				return null;
+			});
 
 		// if add to cart is visible then click add to cart immediately
 		const addToCartVisible = await addToCartButton.isDisplayed().then((displayed) => displayed);
-		if (!addToCartVisible) {
+		if (!addToCartVisible && !notDefined(selectOptionsButton)) {
 			await this.hoverTo(productContainer);
 			await this.executorClick(selectOptionsButton);
 		}
