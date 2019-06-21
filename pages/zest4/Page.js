@@ -18,6 +18,9 @@ class Page {
 		this._url = url;
 		this._closeModalButtonLocator = closeModalButtonLocator;
 
+		// explicit sleep in milliseconds for every action
+		this._explicitSleep = 3000;
+
 		// set the default locator of modal if not specified
 		this._closeModalButtonLocator = notDefined(this._closeModalButtonLocator) ?
 			By.className('mc-closeModal') : this._closeModalButtonLocator;
@@ -51,18 +54,82 @@ class Page {
 	}
 
 	/**
+	 * Set explicit sleep in milliseconds
+	 *
+	 * @param value Sleep length in milliseconds
+	 */
+	set explicitSleep(value) {
+		this._explicitSleep = value;
+	}
+
+	/**
 	 * Open the page
 	 *
 	 * @returns {Promise<void>}
 	 */
 	async open() {
 		await this._driver.get(this._url);
+		// wait for the ready state
+		await this.waitReadyState();
+	}
 
-		await this._driver.wait(() => {
+	/**
+	 * Wait for the ready state of the page.
+	 *
+	 * @returns {Promise<any>}
+	 */
+	async waitReadyState() {
+		return await this._driver.wait(() => {
 			return this._driver.executeScript('return document.readyState').then((readyState) => {
 				return readyState === 'complete';
 			});
 		});
+	}
+
+	/**
+	 * Specialized way to click an element especially when the element is not clickable even page is fully loaded.
+	 *
+	 * @param element HTML element
+	 * @returns {Promise<void>}
+	 */
+	async executorClick(element) {
+		return await this._driver.executeScript('arguments[0].click();', element);
+	}
+
+	/**
+	 * Scroll to the element
+	 *
+	 * @param element HTML element
+	 * @returns {Promise<void>}
+	 */
+	async scrollTo(element) {
+		return await this._driver.executeScript('arguments[0].scrollIntoView();', element);
+	}
+
+	/**
+	 * Hover mouse to the element
+	 *
+	 * @param element HTML element
+	 * @returns {Promise<void>}
+	 */
+	async hoverTo(element) {
+		return await this._driver.actions().move({
+			duration: 2,
+			origin: element,
+			x: 5,
+			y: 5
+		}).perform();
+	}
+
+	/**
+	 * Perform pause or sleep
+	 *
+	 * @param timeout Time out in milliseconds
+	 * @returns {Promise<void>}
+	 */
+	async performSleep(timeout) {
+		const time = notDefined(timeout) ? this._explicitSleep : timeout;
+		return await this._driver.sleep(time);
 	}
 
 	/**

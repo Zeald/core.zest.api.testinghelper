@@ -39,19 +39,19 @@ class CheckoutPage extends Page {
 
 		// initialize locators if not defined
 		this._firstNameInputLocator = notDefined(this._firstNameInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='b_fname']") : this._firstNameInputLocator;
+			By.xpath("//input[@name='b_fname']") : this._firstNameInputLocator;
 		this._lastNameInputLocator = notDefined(this._lastNameInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='b_lname']") : this._lastNameInputLocator;
+			By.xpath("//input[@name='b_lname']") : this._lastNameInputLocator;
 		this._companyInputLocator = notDefined(this._companyInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='b_company']") : this._companyInputLocator;
+			By.xpath("//input[@name='b_company']") : this._companyInputLocator;
 		this._addressInputLocator = notDefined(this._addressInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='b_address1']") : this._addressInputLocator;
+			By.xpath("//input[@name='b_address1']") : this._addressInputLocator;
 		this._cityInputLocator = notDefined(this._cityInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='b_city']") : this._cityInputLocator;
+			By.xpath("//input[@name='b_city']") : this._cityInputLocator;
 		this._phoneInputLocator = notDefined(this._phoneInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='b_phone']") : this._phoneInputLocator;
+			By.xpath("//input[@name='b_phone']") : this._phoneInputLocator;
 		this._emailInputLocator = notDefined(this._emailInputLocator) ?
-			By.xpath("//div[@class='form-group groupform']//input[@name='email']") : this._emailInputLocator;
+			By.xpath("//input[@name='email']") : this._emailInputLocator;
 		this._directCreditInputLocator = notDefined(this._directCreditInputLocator) ?
 			By.xpath("//input[@value='directcredit'][@type='radio']") : this._directCreditInputLocator;
 		this._placeOrderButtonLocator = notDefined(this._placeOrderButtonLocator) ?
