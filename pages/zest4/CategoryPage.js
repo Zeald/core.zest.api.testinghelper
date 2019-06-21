@@ -271,6 +271,8 @@ class CategoryPage extends Page {
 	 * @returns {Promise<*|Array>}
 	 */
 	async getProductContainers() {
+		// wait a 10 seconds until the containers can be located
+		await this._driver.wait(until.elementLocated(this._productContainerLocator), 10000);
 		// get the containers
 		return await this._driver.findElements(this._productContainerLocator);
 	}
