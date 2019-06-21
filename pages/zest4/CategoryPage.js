@@ -27,12 +27,14 @@ class CategoryPage extends Page {
 	 * @param productContainerLocator The locator for each container of the product.
 	 * @param productSelectOptionsLocator The locator for select options button for each product.
 	 * @param productAddToCartLocator The locator for add to cart for each product.
+	 * @param productItemTitleLocator The locator for the product title inside each product container.
 	 * @param popupCartLocator The locator for the popup cart.
+	 * @param popupProductItemTitleLocator The locator for the product title inside the popup cart.
 	 */
 	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator,
 		filtersLocator, showFiltersLocator, closeFiltersButtonLocator, nextPageLocator, loadPageDropDownLocator,
 		pageLoaderLocator, pagesLocator, productSortingLocator, productContainerLocator, productSelectOptionsLocator,
-		productAddToCartLocator, popupCartLocator) {
+		productAddToCartLocator, productItemTitleLocator, popupCartLocator, popupProductItemTitleLocator) {
 		super(webdriver, url);
 
 		this._catViewLocator = catViewLocator;
@@ -49,7 +51,9 @@ class CategoryPage extends Page {
 		this._productContainerLocator = productContainerLocator;
 		this._productSelectOptionsLocator = productSelectOptionsLocator;
 		this._productAddToCartLocator = productAddToCartLocator;
+		this._productItemTitleLocator = productItemTitleLocator;
 		this._popupCartLocator = popupCartLocator;
+		this._popupProductItemTitleLocator = popupProductItemTitleLocator;
 
 		// initialize locators if not defined
 		this._catViewLocator = notDefined(this._catViewLocator) ?
@@ -79,9 +83,30 @@ class CategoryPage extends Page {
 			By.css('.select-options') : this._productSelectOptionsLocator;
 		this._productAddToCartLocator = notDefined(this._productAddToCartLocator) ?
 			By.css('.add-to-cart') : this._productAddToCartLocator;
+		this._productItemTitleLocator = notDefined(this._productItemTitleLocator) ?
+			By.css('.item-title') : this._productItemTitleLocator;
 		this._popupCartLocator = notDefined(this._popupCartLocator) ? By.css('.popup-cart') : this._popupCartLocator;
+		this._popupProductItemTitleLocator = notDefined(this._popupProductItemTitleLocator) ?
+			By.css('.product-title') : this._popupProductItemTitleLocator;
 	}
 
+	/**
+	 * Set category view locator
+	 *
+	 * @param value Locator
+	 */
+	set catViewLocator(value) {
+		this._catViewLocator = value;
+	}
+
+	/**
+	 * Set product link locator
+	 *
+	 * @param value Locator
+	 */
+	set productLinkLocator(value) {
+		this._productLinkLocator = value;
+	}
 
 	/**
 	 * Set filter group locator
@@ -165,24 +190,6 @@ class CategoryPage extends Page {
 	}
 
 	/**
-	 * Set category view locator
-	 *
-	 * @param value Locator
-	 */
-	set catViewLocator(value) {
-		this._catViewLocator = value;
-	}
-
-	/**
-	 * Set product link locator
-	 *
-	 * @param value Locator
-	 */
-	set productLinkLocator(value) {
-		this._productLinkLocator = value;
-	}
-
-	/**
 	 * Set product container locator
 	 *
 	 * @param value Locator
@@ -210,12 +217,30 @@ class CategoryPage extends Page {
 	}
 
 	/**
+	 * Set product item title locator
+	 *
+	 * @param value Locator
+	 */
+	set productItemTitleLocator(value) {
+		this._productItemTitleLocator = value;
+	}
+
+	/**
 	 * Set popup cart locator
 	 *
 	 * @param value Locator
 	 */
 	set popupCartLocator(value) {
 		this._popupCartLocator = value;
+	}
+
+	/**
+	 * Set popup product item title locator
+	 *
+	 * @param value Locator
+	 */
+	set popupProductItemTitleLocator(value) {
+		this._popupProductItemTitleLocator = value;
 	}
 
 	/**
@@ -310,7 +335,6 @@ class CategoryPage extends Page {
 
 		if (!filterGroupDisplayed) {
 			// use executor to click at this point since there are instances show filter is not clickable
-			// await showFilter.click();
 			await this.executorClick(showFilter);
 			await this.performSleep();
 		}
@@ -514,8 +538,9 @@ class CategoryPage extends Page {
 		await this._driver.wait(until.elementIsVisible(popupCart));
 
 		// verify if the product is already in the cart using the product title
-		const productTitle = await productContainer.findElement(By.css('.item-title')).getText().then((text) => text);
-		const popupProductTitles = await popupCart.findElements(By.css('.product-title'));
+		const productTitle = await productContainer.findElement(this._productItemTitleLocator)
+			.getText().then((text) => text);
+		const popupProductTitles = await popupCart.findElements(this._popupProductItemTitleLocator);
 		const titlePromises = [];
 
 		await popupProductTitles.forEach((popupTitle) => {
