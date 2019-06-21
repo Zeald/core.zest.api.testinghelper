@@ -524,11 +524,11 @@ class CategoryPage extends Page {
 
 		const popupTitles = await Promise.all(titlePromises).then((titles) => titles);
 
-		const isProductPresent = await popupTitles.find((title) => {
+		const resultTitle = await popupTitles.find((title) => {
 			return isEqual(productTitle.toUpperCase(), title);
 		});
 
-		return await expect(isProductPresent, 'Product not in the cart!').to.be.true;
+		return await expect(resultTitle, 'Product not in the cart!').to.be.a('string');
 	}
 
 	/**
