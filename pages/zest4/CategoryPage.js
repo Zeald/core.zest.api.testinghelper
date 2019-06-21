@@ -509,28 +509,26 @@ class CategoryPage extends Page {
 		await this.executorClick(addToCartButton);
 		return await this.performSleep();
 
-		/*
 		// wait for the popup cart to show up
 		const popupCart = await this._driver.findElement(this._popupCartLocator);
 		await this._driver.wait(until.elementIsVisible(popupCart));
 
 		// verify if the product is already in the cart using the product title
-		const productTitle = await productContainer.findElement(By.css('.item-title')).getText().then((text) => text);
-		const popupProductTitles = await popupCart.findElements(By.css('.product-title'));
-		const titlePromises = [];
+		const productSKU = await productContainer.getAttribute('data-sku').then((sku) => sku);
+		const popupProductSKUs = await popupCart.findElements(By.css('.sku'));
+		const skuPromises = [];
 
-		await popupProductTitles.forEach((popupTitle) => {
-			titlePromises.push(popupTitle.getText());
+		await popupProductSKUs.forEach((sku) => {
+			skuPromises.push(sku.getText());
 		});
 
-		const popupTitles = await Promise.all(titlePromises).then((titles) => titles);
+		const skus = await Promise.all(skuPromises).then((skus) => skus);
 
-		const isProductPresent = await popupTitles.find((title) => {
-			return isEqual(productTitle, title);
+		const isProductPresent = await skus.find((sku) => {
+			return isEqual(productSKU, sku);
 		});
 
 		return await expect(isProductPresent, 'Product not in the cart!').to.be.true;
-		 */
 	}
 
 	/**
