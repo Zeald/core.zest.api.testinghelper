@@ -1,5 +1,6 @@
 const { notDefined, isEqual, pickRandom } = require('./helpers/functions');
 const { ZestApi } = require('./helpers/ZestApi');
+const { DriverFactory } = require('./helpers/DriverFactory');
 
 // Zest 4 Pages
 const Zest4CategoryPage = require('./pages/zest4/CategoryPage').CategoryPage;
@@ -25,7 +26,14 @@ const Zest3ReceiptPage = require('./pages/zest3/ReceiptPage').ReceiptPage;
 module.exports.notDefined = notDefined;
 module.exports.isEqual = isEqual;
 module.exports.pickRandom = pickRandom;
+module.exports.utils = {
+	notDefined,
+	isEqual,
+	pickRandom
+};
 module.exports.ZestApi = ZestApi;
+module.exports.DriverFactory = DriverFactory;
+
 // export zest4 pages class
 module.exports.Zest4CategoryPage = Zest4CategoryPage;
 module.exports.Zest4CheckoutPage = Zest4CheckoutPage;
@@ -35,6 +43,7 @@ module.exports.Zest4HomePage = Zest4HomePage;
 module.exports.Zest4ProductPage = Zest4ProductPage;
 module.exports.Zest4ReceiptPage = Zest4ReceiptPage;
 module.exports.Zest4Page = Zest4Page;
+
 // export zest3 pages class
 module.exports.Zest3CategoryPage = Zest3CategoryPage;
 module.exports.Zest3CheckoutPage = Zest3CheckoutPage;
