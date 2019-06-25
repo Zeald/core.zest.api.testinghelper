@@ -30,11 +30,14 @@ class CategoryPage extends Page {
 	 * @param productItemTitleLocator The locator for the product title inside each product container.
 	 * @param popupCartLocator The locator for the popup cart.
 	 * @param popupProductItemTitleLocator The locator for the product title inside the popup cart.
+	 * @param addToFavouritesLocator The locator of add product to favourites.
+	 * @param favouritesPageButtonLocator The locator of favourites page locator
 	 */
 	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator,
 		filtersLocator, showFiltersLocator, closeFiltersButtonLocator, nextPageLocator, loadPageDropDownLocator,
 		pageLoaderLocator, pagesLocator, productSortingLocator, productContainerLocator, productSelectOptionsLocator,
-		productAddToCartLocator, productItemTitleLocator, popupCartLocator, popupProductItemTitleLocator) {
+		productAddToCartLocator, productItemTitleLocator, popupCartLocator, popupProductItemTitleLocator,
+		addToFavouritesLocator, favouritesPageButtonLocator) {
 		super(webdriver, url);
 
 		this._catViewLocator = catViewLocator;
@@ -54,6 +57,8 @@ class CategoryPage extends Page {
 		this._productItemTitleLocator = productItemTitleLocator;
 		this._popupCartLocator = popupCartLocator;
 		this._popupProductItemTitleLocator = popupProductItemTitleLocator;
+		this._addToFavouritesLocator = addToFavouritesLocator;
+		this._favouritesPageButtonLocator = favouritesPageButtonLocator;
 
 		// initialize locators if not defined
 		this._catViewLocator = notDefined(this._catViewLocator) ?
@@ -69,7 +74,8 @@ class CategoryPage extends Page {
 		this._closeFiltersButtonLocator = notDefined(this._closeFiltersButtonLocator) ?
 			By.xpath("//*[@class='pop-overlay-inner pop-left']//*[@class='close'][contains(text(),'Close')]") :
 			this._closeFiltersButtonLocator;
-		this._nextPageLocator = notDefined(this._nextPageLocator) ? By.css('.load-next') : this._nextPageLocator;
+		this._nextPageLocator = notDefined(this._nextPageLocator) ?
+			By.css('.load-next') : this._nextPageLocator;
 		this._loadPageDropDownLocator = notDefined(this._loadPageDropDownLocator) ?
 			By.css('.load-page.drop-select') : this._loadPageDropDownLocator;
 		this._pagesLocator = notDefined(this._pagesLocator) ? By.css('ul > li') : this._pagesLocator;
@@ -85,9 +91,14 @@ class CategoryPage extends Page {
 			By.css('.add-to-cart') : this._productAddToCartLocator;
 		this._productItemTitleLocator = notDefined(this._productItemTitleLocator) ?
 			By.css('.item-title') : this._productItemTitleLocator;
-		this._popupCartLocator = notDefined(this._popupCartLocator) ? By.css('.popup-cart') : this._popupCartLocator;
+		this._popupCartLocator = notDefined(this._popupCartLocator) ?
+			By.css('.popup-cart') : this._popupCartLocator;
 		this._popupProductItemTitleLocator = notDefined(this._popupProductItemTitleLocator) ?
 			By.css('.product-title') : this._popupProductItemTitleLocator;
+		this._addToFavouritesLocator = notDefined(this._addToFavouritesLocator) ?
+			By.css('.add-favourite:not(.selected)') : this._addToFavouritesLocator;
+		this._favouritesPageButtonLocator = notDefined(this._favouritesPageButtonLocator) ?
+			By.css('.view-favourites') : this._favouritesPageButtonLocator;
 	}
 
 	/**
@@ -244,6 +255,24 @@ class CategoryPage extends Page {
 	}
 
 	/**
+	 * Set add to favourites locator
+	 *
+	 * @param value Locator
+	 */
+	set addToFavouritesLocator(value) {
+		this._addToFavouritesLocator = value;
+	}
+
+	/**
+	 * Set favourites page button locator
+	 *
+	 * @param value Locator
+	 */
+	set favouritesPageButtonLocator(value) {
+		this._favouritesPageButtonLocator = value;
+	}
+
+	/**
 	 * Get the product url
 	 *
 	 * @returns {Promise<any[]|*>}
@@ -280,10 +309,18 @@ class CategoryPage extends Page {
 	/**
 	 * Get the product titles
 	 *
-	 * @returns {Promise<any[]>}
+	 * @param containers Product container elements.
+	 * @returns {Promise<[any, any, any, any, any, any, any, any, any, any]>}
 	 */
-	async getProductTitles() {
-		const productContainers = await this.getProductContainers().then((containers) => containers);
+	async getProductTitles(containers) {
+		let productContainers = [];
+
+		if (notDefined(containers)) {
+			productContainers = await this.getProductContainers().then((containers) => containers);
+		} else {
+			productContainers = await containers;
+		}
+
 		const titlePromises = [];
 
 		await productContainers.forEach((container) => {
@@ -297,9 +334,10 @@ class CategoryPage extends Page {
 	 * Verify if products do exist in this certain category.
 	 *
 	 * @param categoryURL The URL of the category.
+	 * @param assert This will dictate if need to execute assert rather returning the result.
 	 * @returns {Promise<*>}
 	 */
-	async checkIfProductsExists(categoryURL) {
+	async checkIfProductsExists(categoryURL, assert) {
 		if (!notDefined(categoryURL)) {
 			this._url = categoryURL;
 			await this.open();
@@ -308,7 +346,12 @@ class CategoryPage extends Page {
 		const productURLs = await this.getProductURLs().then((urls) => urls);
 
 		const exists = productURLs && Array.isArray(productURLs) && productURLs.length > 0;
-		return await expect(exists, 'Category products does not exist!').to.be.true;
+
+		if (assert) {
+			return await expect(exists, 'Category products does not exist!').to.be.true;
+		}
+
+		return await exists;
 	}
 
 	/**
@@ -585,12 +628,26 @@ class CategoryPage extends Page {
 		// scroll to this product
 		await this.scrollTo(productContainer);
 
-		return await productContainer.findElement(By.css('.add-favourite:not(.selected)')).then((button) => {
+		await productContainer.findElement(this._addToFavouritesLocator).then((button) => {
 			return button.click();
 		}).catch(() => {
 			// do nothing this means that the button already clicked previously.
 			return false;
 		});
+
+		return await productContainer;
+	}
+
+	/**
+	 * Open favourites page.
+	 *
+	 * @returns {Promise<FavouritesPage>}
+	 */
+	async openFavourites() {
+		await this._driver.findElement(this._favouritesPageButtonLocator).click();
+		// instantiate favourites page.
+		await this.waitReadyState();
+		return await this._driver.getCurrentUrl().then((url) => url);
 	}
 
 	/**
@@ -605,7 +662,7 @@ class CategoryPage extends Page {
 			promises.push(element.getAttribute('href'));
 		});
 
-		return Promise.all(promises);
+		return await Promise.all(promises);
 	}
 }
 
