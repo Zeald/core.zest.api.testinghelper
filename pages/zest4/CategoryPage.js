@@ -334,9 +334,10 @@ class CategoryPage extends Page {
 	 * Verify if products do exist in this certain category.
 	 *
 	 * @param categoryURL The URL of the category.
+	 * @param assert This will dictate if need to execute assert rather returning the result.
 	 * @returns {Promise<*>}
 	 */
-	async checkIfProductsExists(categoryURL) {
+	async checkIfProductsExists(categoryURL, assert) {
 		if (!notDefined(categoryURL)) {
 			this._url = categoryURL;
 			await this.open();
@@ -345,7 +346,12 @@ class CategoryPage extends Page {
 		const productURLs = await this.getProductURLs().then((urls) => urls);
 
 		const exists = productURLs && Array.isArray(productURLs) && productURLs.length > 0;
-		return await expect(exists, 'Category products does not exist!').to.be.true;
+
+		if (assert) {
+			return await expect(exists, 'Category products does not exist!').to.be.true;
+		}
+
+		return await exists;
 	}
 
 	/**
