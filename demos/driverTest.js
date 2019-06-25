@@ -35,7 +35,8 @@ describe('Test', () => {
 		// add products to favourites
 		const firstProduct = await categoryPage.addProductToFavourites(2);
 		const secondProduct = await categoryPage.addProductToFavourites();
-		const productTitles = await categoryPage.getProductTitles([firstProduct, secondProduct])
+		const thirdProduct = await categoryPage.addProductToFavourites();
+		const productTitles = await categoryPage.getProductTitles([firstProduct, secondProduct, thirdProduct])
 			.then((titles) => titles);
 
 		const favouritesPageURL = await categoryPage.openFavourites();
@@ -43,6 +44,7 @@ describe('Test', () => {
 		await favouritesPage.checkIfProductsExists();
 		await favouritesPage.verifyAddedFavouriteProductTitles(productTitles);
 		await favouritesPage.removeProductFromFavourites(0);
+		await favouritesPage.removeAllProductFromFavourites();
 	});
 
 	after(async () => {
