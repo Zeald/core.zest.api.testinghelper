@@ -1,6 +1,6 @@
 {
   "name": "zest-api-testinghelper",
-  "version": "1.0.3",
+  "version": "1.0.6",
   "description": "Zest API class helper",
   "main": "zesthelpers.js",
   "scripts": {
