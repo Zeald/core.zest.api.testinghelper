@@ -42,6 +42,7 @@ describe('Test', () => {
 		const favouritesPage = new FavouritesPage(driver, favouritesPageURL);
 		await favouritesPage.checkIfProductsExists();
 		await favouritesPage.verifyAddedFavouriteProductTitles(productTitles);
+		await favouritesPage.removeProductFromFavourites(0);
 	});
 
 	after(async () => {
