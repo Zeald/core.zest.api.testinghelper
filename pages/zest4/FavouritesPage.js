@@ -94,6 +94,33 @@ class FavouritesPage extends CategoryPage {
 
 		return await expect(!exists, 'Product was not removed from favourites!').to.be.true;
 	}
+
+	/**
+	 * Remove all propducts in the favourites.
+	 *
+	 * @returns {Promise<*>}
+	 */
+	async removeAllProductFromFavourites() {
+		const productContainers = await this.getProductContainers().then((containers) => containers);
+		const removePromises = [];
+
+		await productContainers.forEach( (container) => {
+			const promise = container.findElement(this._removeFromFavouritesLocator);
+			removePromises.push(promise);
+		});
+
+		await Promise.all(removePromises).then((removeButtons) => {
+			// perform clicks
+			removeButtons.forEach((button) => button.click());
+		}).catch(() => false);
+
+		// wait for a bit until products are removed properly
+		await this.performSleep(3000);
+
+		// check if the others are not removed
+		const exists = await this.checkIfProductsExists(null, false);
+		return await expect(!exists, 'Not all products are removed!').to.be.true;
+	}
 }
 
 module.exports.FavouritesPage = FavouritesPage;
