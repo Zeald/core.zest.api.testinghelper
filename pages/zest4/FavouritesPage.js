@@ -18,10 +18,8 @@ class FavouritesPage extends SuperCategoryPage {
 	constructor(webdriver, url, removeFromFavouritesLocator) {
 		super(webdriver, url);
 
-		this._removeFromFavouritesLocator = removeFromFavouritesLocator;
-
-		this._removeFromFavouritesLocator = notDefined(this._removeFromFavouritesLocator) ?
-			By.css('.add-favourite.selected') : this._removeFromFavouritesLocator;
+		this._removeFromFavouritesLocator = notDefined(removeFromFavouritesLocator) ?
+			By.css('.add-favourite.selected') : removeFromFavouritesLocator;
 	}
 
 	/**

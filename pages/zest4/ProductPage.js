@@ -31,38 +31,27 @@ class ProductPage extends Page {
 				productLargeImageLocator, productImageZoomLocator, productLargeImageCloseLocator, priceLocator) {
 		super(webdriver, url, closeModalButtonLocator);
 
-		this._addToCartButtonLocator = addToCartButtonLocator;
-		this._enquireButtonSelector = enquireButtonSelector;
-		this._productOptionLocator = productOptionLocator;
-		this._productAdvanceOptionLocator = productAdvanceOptionLocator;
-		this._descriptionLocator = descriptionLocator;
-		this._productImageLocator = productImageLocator;
-		this._productLargeImageLocator = productLargeImageLocator;
-		this._productImageZoomLocator = productImageZoomLocator;
-		this._productLargeImageCloseLocator = productLargeImageCloseLocator;
-		this._priceLocator = priceLocator;
-
 		// initialize locators if not defined
-		this._addToCartButtonLocator = notDefined(this._addToCartButtonLocator) ?
-			By.xpath("//button[contains(text(),'Add to cart')]") : this._addToCartButtonLocator;
-		this._enquireButtonSelector = notDefined(this._enquireButtonSelector) ?
-			By.xpath("//a[@class='zbtn' and contains(@href,'enquiry')]") : this._enquireButtonSelector;
-		this._productOptionLocator = notDefined(this._productOptionLocator) ?
-			By.css('form.order .option') : this._productOptionLocator;
-		this._productAdvanceOptionLocator = notDefined(this._productAdvanceOptionLocator) ?
-			By.css('form.order #variant-code') : this._productAdvanceOptionLocator;
-		this._descriptionLocator = notDefined(this._descriptionLocator) ?
-			By.css('.full-description') : this._descriptionLocator;
-		this._productImageLocator = notDefined(this._productImageLocator) ?
-			By.css('.image-main') : this._productImageLocator;
-		this._productLargeImageLocator = notDefined(this._productLargeImageLocator) ?
-			By.css('.large-image') : this._productLargeImageLocator;
-		this._productImageZoomLocator = notDefined(this._productImageZoomLocator) ?
-			By.css('.maximise') : this._productImageZoomLocator;
-		this._productLargeImageCloseLocator = notDefined(this._productLargeImageCloseLocator) ?
-			By.css('.large-image > .close') : this._productLargeImageCloseLocator;
-		this._priceLocator = notDefined(this._priceLocator) ?
-			By.css('.price #unit') : this._priceLocator;
+		this._addToCartButtonLocator = notDefined(addToCartButtonLocator) ?
+			By.xpath("//button[contains(text(),'Add to cart')]") : addToCartButtonLocator;
+		this._enquireButtonSelector = notDefined(enquireButtonSelector) ?
+			By.xpath("//a[@class='zbtn' and contains(@href,'enquiry')]") : enquireButtonSelector;
+		this._productOptionLocator = notDefined(productOptionLocator) ?
+			By.css('form.order .option') : productOptionLocator;
+		this._productAdvanceOptionLocator = notDefined(productAdvanceOptionLocator) ?
+			By.css('form.order #variant-code') : productAdvanceOptionLocator;
+		this._descriptionLocator = notDefined(descriptionLocator) ?
+			By.css('.full-description') : descriptionLocator;
+		this._productImageLocator = notDefined(productImageLocator) ?
+			By.css('.image-main') : productImageLocator;
+		this._productLargeImageLocator = notDefined(productLargeImageLocator) ?
+			By.css('.large-image') : productLargeImageLocator;
+		this._productImageZoomLocator = notDefined(productImageZoomLocator) ?
+			By.css('.maximise') : productImageZoomLocator;
+		this._productLargeImageCloseLocator = notDefined(productLargeImageCloseLocator) ?
+			By.css('.large-image > .close') : productLargeImageCloseLocator;
+		this._priceLocator = notDefined(priceLocator) ?
+			By.css('.price #unit') : priceLocator;
 	}
 
 	/**

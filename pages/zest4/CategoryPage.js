@@ -1,6 +1,4 @@
-const { By, until } = require('selenium-webdriver');
-const { expect } = require('chai');
-const { notDefined, pickRandom, isEqual } = require('../../helpers/functions');
+const { notDefined, pickRandom } = require('../../helpers/functions');
 const { SuperCategoryPage } = require('./SuperCategoryPage');
 const { FavouritesPage } = require('./FavouritesPage');
 const { ProductPage } = require('./ProductPage');
