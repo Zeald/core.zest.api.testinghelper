@@ -3,6 +3,7 @@ const { ZestApi } = require('./helpers/ZestApi');
 const { DriverFactory } = require('./helpers/DriverFactory');
 
 // Zest 4 Pages
+const Zest4SuperCategoryPage = require('./pages/zest4/SuperCategoryPage').SuperCategoryPage;
 const Zest4CategoryPage = require('./pages/zest4/CategoryPage').CategoryPage;
 const Zest4CheckoutPage = require('./pages/zest4/CheckoutPage').CheckoutPage;
 const Zest4ContactUs = require('./pages/zest4/ContactUs').ContactUs;
@@ -36,6 +37,7 @@ module.exports.ZestApi = ZestApi;
 module.exports.DriverFactory = DriverFactory;
 
 // export zest4 pages class
+module.exports.Zest4SuperCategoryPage = Zest4SuperCategoryPage;
 module.exports.Zest4CategoryPage = Zest4CategoryPage;
 module.exports.Zest4CheckoutPage = Zest4CheckoutPage;
 module.exports.Zest4ContactUs = Zest4ContactUs;
