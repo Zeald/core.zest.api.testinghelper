@@ -335,7 +335,7 @@ class SuperCategoryPage extends Page {
 			}
 		});
 
-		return containerWithOptions;
+		return await containerWithOptions;
 	}
 
 	/**
