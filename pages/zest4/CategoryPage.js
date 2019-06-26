@@ -1,641 +1,23 @@
 const { By, until } = require('selenium-webdriver');
 const { expect } = require('chai');
 const { notDefined, pickRandom, isEqual } = require('../../helpers/functions');
-const { Page } = require('./Page');
+const { SuperCategoryPage } = require('./SuperCategoryPage');
+const { FavouritesPage } = require('./FavouritesPage');
+const { ProductPage } = require('./ProductPage');
 
 /**
  * Category Page class
  *
  */
-class CategoryPage extends Page {
+class CategoryPage extends SuperCategoryPage {
 	/**
 	 * Constructor
 	 *
 	 * @param webdriver Selenium web driver.
 	 * @param url The url of the page.
-	 * @param catViewLocator The category view locator.
-	 * @param productLinkLocator The product view locator.
-	 * @param filterGroupLocator The locator for filter groups.
-	 * @param filtersLocator The locator for filter items.
-	 * @param showFiltersLocator The locator for show filters.
-	 * @param closeFiltersButtonLocator The locator for close button of filters.
-	 * @param nextPageLocator The next page locator.
-	 * @param loadPageDropDownLocator The category load page locator.
-	 * @param pageLoaderLocator The page loader / spinner locator.
-	 * @param pagesLocator The pages item locator.
-	 * @param productSortingLocator The locator for sorting of products.
-	 * @param productContainerLocator The locator for each container of the product.
-	 * @param productSelectOptionsLocator The locator for select options button for each product.
-	 * @param productAddToCartLocator The locator for add to cart for each product.
-	 * @param productItemTitleLocator The locator for the product title inside each product container.
-	 * @param popupCartLocator The locator for the popup cart.
-	 * @param popupProductItemTitleLocator The locator for the product title inside the popup cart.
-	 * @param addToFavouritesLocator The locator of add product to favourites.
-	 * @param favouritesPageButtonLocator The locator of favourites page locator
 	 */
-	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator,
-		filtersLocator, showFiltersLocator, closeFiltersButtonLocator, nextPageLocator, loadPageDropDownLocator,
-		pageLoaderLocator, pagesLocator, productSortingLocator, productContainerLocator, productSelectOptionsLocator,
-		productAddToCartLocator, productItemTitleLocator, popupCartLocator, popupProductItemTitleLocator,
-		addToFavouritesLocator, favouritesPageButtonLocator) {
+	constructor(webdriver, url) {
 		super(webdriver, url);
-
-		this._catViewLocator = catViewLocator;
-		this._productLinkLocator = productLinkLocator;
-		this._filterGroupLocator = filterGroupLocator;
-		this._filtersLocator = filtersLocator;
-		this._showFiltersLocator = showFiltersLocator;
-		this._closeFiltersButtonLocator = closeFiltersButtonLocator;
-		this._nextPageLocator = nextPageLocator;
-		this._loadPageDropDownLocator = loadPageDropDownLocator;
-		this._pageLoaderLocator = pageLoaderLocator;
-		this._pagesLocator = pagesLocator;
-		this._productSortingLocator = productSortingLocator;
-		this._productContainerLocator = productContainerLocator;
-		this._productSelectOptionsLocator = productSelectOptionsLocator;
-		this._productAddToCartLocator = productAddToCartLocator;
-		this._productItemTitleLocator = productItemTitleLocator;
-		this._popupCartLocator = popupCartLocator;
-		this._popupProductItemTitleLocator = popupProductItemTitleLocator;
-		this._addToFavouritesLocator = addToFavouritesLocator;
-		this._favouritesPageButtonLocator = favouritesPageButtonLocator;
-
-		// initialize locators if not defined
-		this._catViewLocator = notDefined(this._catViewLocator) ?
-			By.css('div.catview') : this._catViewLocator;
-		this._productLinkLocator = notDefined(this._productLinkLocator) ?
-			By.css('.product-collection .product-card a') : this._productLinkLocator;
-		this._filterGroupLocator = notDefined(this._filterGroupLocator) ?
-			By.css('.filter-collection > .filter-group') : this._filterGroupLocator;
-		this._filtersLocator = notDefined(this._filtersLocator) ?
-			By.css('ul > li:not(.empty).filter') : this._filtersLocator;
-		this._showFiltersLocator = notDefined(this._showFiltersLocator) ?
-			By.css('.top-filters .show-filters') : this._showFiltersLocator;
-		this._closeFiltersButtonLocator = notDefined(this._closeFiltersButtonLocator) ?
-			By.xpath("//*[@class='pop-overlay-inner pop-left']//*[@class='close'][contains(text(),'Close')]") :
-			this._closeFiltersButtonLocator;
-		this._nextPageLocator = notDefined(this._nextPageLocator) ?
-			By.css('.load-next') : this._nextPageLocator;
-		this._loadPageDropDownLocator = notDefined(this._loadPageDropDownLocator) ?
-			By.css('.load-page.drop-select') : this._loadPageDropDownLocator;
-		this._pagesLocator = notDefined(this._pagesLocator) ? By.css('ul > li') : this._pagesLocator;
-		this._pageLoaderLocator = notDefined(this._pageLoaderLocator) ?
-			By.css('.loading-overlay') : this._pageLoaderLocator;
-		this._productSortingLocator = notDefined(this._productSortingLocator) ?
-			By.css(".sort > select[name='item_sort_by'].sort-by") : this._productSortingLocator;
-		this._productContainerLocator = notDefined(this._productContainerLocator) ?
-			By.css('.product-card') : this._productContainerLocator;
-		this._productSelectOptionsLocator = notDefined(this._productSelectOptionsLocator) ?
-			By.css('.select-options') : this._productSelectOptionsLocator;
-		this._productAddToCartLocator = notDefined(this._productAddToCartLocator) ?
-			By.css('.add-to-cart') : this._productAddToCartLocator;
-		this._productItemTitleLocator = notDefined(this._productItemTitleLocator) ?
-			By.css('.item-title') : this._productItemTitleLocator;
-		this._popupCartLocator = notDefined(this._popupCartLocator) ?
-			By.css('.popup-cart') : this._popupCartLocator;
-		this._popupProductItemTitleLocator = notDefined(this._popupProductItemTitleLocator) ?
-			By.css('.product-title') : this._popupProductItemTitleLocator;
-		this._addToFavouritesLocator = notDefined(this._addToFavouritesLocator) ?
-			By.css('.add-favourite:not(.selected)') : this._addToFavouritesLocator;
-		this._favouritesPageButtonLocator = notDefined(this._favouritesPageButtonLocator) ?
-			By.css('.view-favourites') : this._favouritesPageButtonLocator;
-	}
-
-	/**
-	 * Set category view locator
-	 *
-	 * @param value Locator
-	 */
-	set catViewLocator(value) {
-		this._catViewLocator = value;
-	}
-
-	/**
-	 * Set product link locator
-	 *
-	 * @param value Locator
-	 */
-	set productLinkLocator(value) {
-		this._productLinkLocator = value;
-	}
-
-	/**
-	 * Set filter group locator
-	 *
-	 * @param value Locator
-	 */
-	set filterGroupLocator(value) {
-		this._filterGroupLocator = value;
-	}
-
-	/**
-	 * Set filters locator
-	 *
-	 * @param value Locator
-	 */
-	set filtersLocator(value) {
-		this._filtersLocator = value;
-	}
-
-	/**
-	 * Set show filters locator
-	 *
-	 * @param value Locator
-	 */
-	set showFiltersLocator(value) {
-		this._showFiltersLocator = value;
-	}
-
-	/**
-	 * Set close filters button locator
-	 *
-	 * @param value Locator
-	 */
-	set closeFiltersButtonLocator(value) {
-		this._closeFiltersButtonLocator = value;
-	}
-
-	/**
-	 * Set next page locator
-	 *
-	 * @param value Locator
-	 */
-	set nextPageLocator(value) {
-		this._nextPageLocator = value;
-	}
-
-	/**
-	 * Set load page dropdown locator
-	 *
-	 * @param value Locator
-	 */
-	set loadPageDropDownLocator(value) {
-		this._loadPageDropDownLocator = value;
-	}
-
-	/**
-	 * Set page loader / spinner locator
-	 *
-	 * @param value Locator
-	 */
-	set pageLoaderLocator(value) {
-		this._pageLoaderLocator = value;
-	}
-
-	/**
-	 * Set pages item locator
-	 *
-	 * @param value Locator
-	 */
-	set pagesLocator(value) {
-		this._pagesLocator = value;
-	}
-
-	/**
-	 * Set product sorting locator
-	 *
-	 * @param value Locator
-	 */
-	set productSortingLocator(value) {
-		this._productSortingLocator = value;
-	}
-
-	/**
-	 * Set product container locator
-	 *
-	 * @param value Locator
-	 */
-	set productContainerLocator(value) {
-		this._productContainerLocator = value;
-	}
-
-	/**
-	 * Set product select options locator
-	 *
-	 * @param value Locator
-	 */
-	set productSelectOptionsLocator(value) {
-		this._productSelectOptionsLocator = value;
-	}
-
-	/**
-	 * Set product add to cart locator
-	 *
-	 * @param value Locator
-	 */
-	set productAddToCartLocator(value) {
-		this._productAddToCartLocator = value;
-	}
-
-	/**
-	 * Set product item title locator
-	 *
-	 * @param value Locator
-	 */
-	set productItemTitleLocator(value) {
-		this._productItemTitleLocator = value;
-	}
-
-	/**
-	 * Set popup cart locator
-	 *
-	 * @param value Locator
-	 */
-	set popupCartLocator(value) {
-		this._popupCartLocator = value;
-	}
-
-	/**
-	 * Set popup product item title locator
-	 *
-	 * @param value Locator
-	 */
-	set popupProductItemTitleLocator(value) {
-		this._popupProductItemTitleLocator = value;
-	}
-
-	/**
-	 * Set add to favourites locator
-	 *
-	 * @param value Locator
-	 */
-	set addToFavouritesLocator(value) {
-		this._addToFavouritesLocator = value;
-	}
-
-	/**
-	 * Set favourites page button locator
-	 *
-	 * @param value Locator
-	 */
-	set favouritesPageButtonLocator(value) {
-		this._favouritesPageButtonLocator = value;
-	}
-
-	/**
-	 * Get the product url
-	 *
-	 * @returns {Promise<any[]|*>}
-	 */
-	async getProductURLs() {
-		// locate the cat view
-		const catView = await this._driver.findElement(this._catViewLocator);
-		// wait a bit until it is visible
-		await this._driver.wait(until.elementIsVisible(catView), 2000);
-		// get product links
-		let productURLs = await catView.findElements(this._productLinkLocator);
-
-		if (productURLs.length === 0) {
-			// use the zest 3 selectors
-			productURLs = await catView.findElements(By.css('.item-list .item-cell a'));
-		}
-
-		this.productURLs = await this.resolveURLs(productURLs).then((urls) => urls);
-		return await this.productURLs;
-	}
-
-	/**
-	 * Get the product containers
-	 *
-	 * @returns {Promise<*|Array>}
-	 */
-	async getProductContainers() {
-		// wait a 10 seconds until the containers can be located
-		await this._driver.wait(until.elementLocated(this._productContainerLocator), 10000);
-		// get the containers
-		return await this._driver.findElements(this._productContainerLocator);
-	}
-
-	/**
-	 * Get the product titles
-	 *
-	 * @param containers Product container elements.
-	 * @returns {Promise<[any, any, any, any, any, any, any, any, any, any]>}
-	 */
-	async getProductTitles(containers) {
-		let productContainers = [];
-
-		if (notDefined(containers)) {
-			productContainers = await this.getProductContainers().then((containers) => containers);
-		} else {
-			productContainers = await containers;
-		}
-
-		const titlePromises = [];
-
-		await productContainers.forEach((container) => {
-			titlePromises.push(container.findElement(this._productItemTitleLocator).getText());
-		});
-
-		return await Promise.all(titlePromises);
-	}
-
-	/**
-	 * Verify if products do exist in this certain category.
-	 *
-	 * @param categoryURL The URL of the category.
-	 * @param assert This will dictate if need to execute assert rather returning the result.
-	 * @returns {Promise<*>}
-	 */
-	async checkIfProductsExists(categoryURL, assert) {
-		if (!notDefined(categoryURL)) {
-			this._url = categoryURL;
-			await this.open();
-		}
-
-		const productURLs = await this.getProductURLs().then((urls) => urls);
-
-		const exists = productURLs && Array.isArray(productURLs) && productURLs.length > 0;
-
-		if (assert) {
-			return await expect(exists, 'Category products does not exist!').to.be.true;
-		}
-
-		return await exists;
-	}
-
-	/**
-	 * Apply random product filter
-	 *
-	 * @param categoryURL The URL of the category.
-	 * @returns {Promise<void>}
-	 */
-	async applyRandomProductFilter(categoryURL) {
-		if (!notDefined(categoryURL)) {
-			this._url = categoryURL;
-			await this.open();
-		}
-
-		// wait for ready state
-		await this.waitReadyState();
-
-		const filterGroups = await this._driver.findElements(this._filterGroupLocator).then((groups) => groups);
-
-		// pick a filter group
-		const filterGroup = await pickRandom(...filterGroups);
-		const filterGroupDisplayed = await filterGroup.isDisplayed().then((displayed) => displayed);
-		const showFilter = await this._driver.findElement(this._showFiltersLocator);
-
-		await this._driver.wait(until.elementIsVisible(showFilter), 3000);
-
-		if (!filterGroupDisplayed) {
-			// use executor to click at this point since there are instances show filter is not clickable
-			await this.executorClick(showFilter);
-			await this.performSleep();
-		}
-
-		// pick a filter to click
-		const filters = await filterGroup.findElements(this._filtersLocator).then((filters) => filters);
-		const filter = await pickRandom(...filters);
-
-		// click and check
-		await filter.click();
-		await this.performSleep();
-
-		const closeButton = await this._driver.findElement(this._closeFiltersButtonLocator);
-
-		if (!filterGroupDisplayed) {
-			// close the filter
-			await closeButton.click();
-			await this.performSleep();
-		}
-
-		await this.checkIfProductsExists();
-
-		// open filter and close uncheck
-		if (!filterGroupDisplayed) {
-			// use executor to click at this point since there are instances show filter is not clickable
-			await this.executorClick(showFilter);
-			await this.performSleep();
-			await filter.click();
-			await this.performSleep();
-			// close the filter
-			await this.executorClick(closeButton);
-			await this.performSleep();
-		}
-
-		return await filter;
-	}
-
-	/**
-	 * Load the next page.
-	 *
-	 * @param categoryURL The URL of the category.
-	 * @returns {Promise<*>}
-	 */
-	async goToNextPage(categoryURL) {
-		if (!notDefined(categoryURL)) {
-			this._url = categoryURL;
-			await this.open();
-		}
-
-		// wait for ready state
-		await this.waitReadyState();
-
-		// get the products before loading the next page
-		await this.checkIfProductsExists();
-		const firstPageProducts = await this.getProductURLs().then((urls) => urls);
-
-		// get the next page button
-		const isLoadNextPageExist = await this._driver.findElement(this._nextPageLocator).then((element) => {
-			if (element) {
-				return true;
-			}
-		}).catch((err) => {
-			return false;
-		});
-
-		if (isLoadNextPageExist) {
-			const loadNextPage = await this._driver.findElement(this._nextPageLocator);
-			// scroll to the next page button
-			await this.scrollTo(loadNextPage);
-			await this.performSleep();
-
-			// click load next page
-			await loadNextPage.click();
-			await this.performSleep();
-		}
-
-		await this.checkIfProductsExists();
-
-		// get the new products list if there's any
-		const nextPageProducts = await this.getProductURLs().then((urls) => urls);
-		const isNextPageProductLoaded = await nextPageProducts.length >= firstPageProducts.length;
-
-		return await expect(isNextPageProductLoaded, 'Next page products is not loaded!').to.be.true;
-	}
-
-	/**
-	 * Go to a random page.
-	 *
-	 * @param categoryURL The URL of the category.
-	 * @returns {Promise<void>}
-	 */
-	async goToRandomPage(categoryURL) {
-		if (!notDefined(categoryURL)) {
-			this._url = categoryURL;
-			await this.open();
-		}
-
-		// wait for ready state
-		await this.waitReadyState();
-
-		const pageSelector = await this._driver.findElement(this._loadPageDropDownLocator);
-		await this.scrollTo(pageSelector);
-		await this.performSleep();
-
-		// click the page selector
-		await pageSelector.click();
-		await this.performSleep();
-
-		// get all the pages under the drop down
-		const pages = await pageSelector.findElements(this._pagesLocator).then((pages) => pages);
-		// pick a random page to jump in
-		const page = await pickRandom(...pages);
-		// click the page
-		await page.click();
-
-		await this.performSleep();
-
-		// verify if there are products
-		await this.checkIfProductsExists();
-
-		return await page;
-	}
-
-	/**
-	 * Execute product sort.
-	 *
-	 * @param sortIndex Index of the sort option
-	 * @param categoryURL categoryURL The URL of the category.
-	 * @returns {Promise<*>}
-	 */
-	async productSort(sortIndex, categoryURL) {
-		if (!notDefined(categoryURL)) {
-			this._url = categoryURL;
-			await this.open();
-		}
-
-		// wait for ready state
-		await this.waitReadyState();
-
-		sortIndex = notDefined(sortIndex) ? 0 : sortIndex;
-
-		// get the original list of product titles in the current order.
-		const productTitlesOriginalOrder = await this.getProductTitles().then((titles) => titles);
-
-		const productSortingSelect = await this._driver.findElement(this._productSortingLocator);
-		// scroll tp the sorting dropdown
-		await this.scrollTo(productSortingSelect);
-		await this.performSleep();
-		// click it
-		await productSortingSelect.click();
-
-		// get all the elements under it
-		const options = await productSortingSelect.findElements(By.css('option')).then((options) => options);
-		await this.performSleep(1000);
-		// click the option
-		await options[sortIndex].click();
-
-		// put sleep here just to be sure that loader has gone away and products are loaded.
-		await this.performSleep(6000);
-
-		// get the original list of products in their new order
-		const productTitlesNewOrder = await this.getProductTitles().then((titles) => titles);
-
-		// compare if still exactly the same order
-		const result = await isEqual(productTitlesOriginalOrder, productTitlesNewOrder);
-
-		return await expect(result, 'No ordering happened!').to.be.false;
-	}
-
-	/**
-	 * Add product to cart.
-	 *
-	 * @param productIndex Index of the product in the list.
-	 * @returns {Promise<*>}
-	 */
-	async addProductToCart(productIndex) {
-		let productContainer = null;
-		const productContainers = await this.getProductContainers().then((containers) => containers);
-
-		if (notDefined(productIndex)) {
-			productContainer = await pickRandom(...productContainers);
-		} else {
-			productContainer = await productContainers[productIndex];
-		}
-
-		// scroll to this product
-		await this.scrollTo(productContainer);
-
-		const addToCartButton = await productContainer.findElement(this._productAddToCartLocator);
-		const selectOptionsButton = await productContainer.findElement(this._productSelectOptionsLocator)
-			.then((element) => element)
-			.catch((err) => {
-				// Possibly that the product has no options.
-				return null;
-			});
-
-		// if add to cart is visible then click add to cart immediately
-		const addToCartVisible = await addToCartButton.isDisplayed().then((displayed) => displayed);
-		if (!addToCartVisible && !notDefined(selectOptionsButton)) {
-			await this.hoverTo(productContainer);
-			await this.executorClick(selectOptionsButton);
-		}
-
-		await this.executorClick(addToCartButton);
-		await this.performSleep();
-
-		// wait for the popup cart to show up
-		const popupCart = await this._driver.findElement(this._popupCartLocator);
-		await this._driver.wait(until.elementIsVisible(popupCart));
-
-		// verify if the product is already in the cart using the product title
-		const productTitle = await productContainer.findElement(this._productItemTitleLocator)
-			.getText().then((text) => text);
-		const popupProductTitles = await popupCart.findElements(this._popupProductItemTitleLocator);
-		const titlePromises = [];
-
-		await popupProductTitles.forEach((popupTitle) => {
-			titlePromises.push(popupTitle.getText());
-		});
-
-		const popupTitles = await Promise.all(titlePromises).then((titles) => titles);
-
-		const resultTitle = await popupTitles.find((title) => {
-			return isEqual(productTitle.toUpperCase(), title);
-		});
-
-		return await expect(resultTitle, 'Product not in the cart!').to.be.a('string');
-	}
-
-	/**
-	 * Add a product to favourites.
-	 *
-	 * @param productIndex Index of the product in the list.
-	 * @returns {Promise<T | boolean>}
-	 */
-	async addProductToFavourites(productIndex) {
-		let productContainer = null;
-		const productContainers = await this.getProductContainers().then((containers) => containers);
-
-		if (notDefined(productIndex)) {
-			productContainer = await pickRandom(...productContainers);
-		} else {
-			productContainer = await productContainers[productIndex];
-		}
-
-		// scroll to this product
-		await this.scrollTo(productContainer);
-
-		await productContainer.findElement(this._addToFavouritesLocator).then((button) => {
-			return button.click();
-		}).catch(() => {
-			// do nothing this means that the button already clicked previously.
-			return false;
-		});
-
-		return await productContainer;
 	}
 
 	/**
@@ -647,22 +29,83 @@ class CategoryPage extends Page {
 		await this._driver.findElement(this._favouritesPageButtonLocator).click();
 		// instantiate favourites page.
 		await this.waitReadyState();
-		return await this._driver.getCurrentUrl().then((url) => url);
+		const favouritesPageURL = await this._driver.getCurrentUrl().then((url) => url);
+		return await new FavouritesPage(this._driver, favouritesPageURL);
 	}
 
 	/**
-	 * Resolve url promises to extract href attribute.
+	 * Open a product through a container that has option.
 	 *
-	 * @param urlPromises URL element promises
-	 * @return {Promise<any[]>}
+	 * @param productIndex Index of the product in the list.
+	 * @returns {Promise<ProductPage>}
 	 */
-	async resolveURLs(urlPromises) {
-		const promises = [];
-		await urlPromises.forEach((element) => {
-			promises.push(element.getAttribute('href'));
-		});
+	async openProductWithOption(productIndex) {
+		let productContainer = null;
+		const productContainers = await this.getProductContainersWithOptions();
 
-		return await Promise.all(promises);
+		if (notDefined(productIndex)) {
+			productContainer = await pickRandom(...productContainers);
+		} else {
+			productContainer = await productContainers[productIndex];
+		}
+
+		// click to open and instantiate product page class.
+		return await this.openProductContainer(productContainer);
+	}
+
+	/**
+	 * Open a product through a container that don't have option.
+	 *
+	 * @param productIndex Index of the product in the list.
+	 * @returns {Promise<ProductPage>}
+	 */
+	async openProductWithNoOption(productIndex) {
+		let productContainer = null;
+		const productContainers = await this.getProductContainersWithNoOptions();
+
+		if (notDefined(productIndex)) {
+			productContainer = await pickRandom(...productContainers);
+		} else {
+			productContainer = await productContainers[productIndex];
+		}
+
+		// click to open and instantiate product page class.
+		return await this.openProductContainer(productContainer);
+	}
+
+	/**
+	 * Open a product through a container.
+	 *
+	 * @param productIndex Index of the product in the list.
+	 * @returns {Promise<ProductPage>}
+	 */
+	async openProduct(productIndex) {
+		let productContainer = null;
+		const productContainers = await this.getProductContainers();
+
+		if (notDefined(productIndex)) {
+			productContainer = await pickRandom(...productContainers);
+		} else {
+			productContainer = await productContainers[productIndex];
+		}
+
+		// click to open and instantiate product page class.
+		return await this.openProductContainer(productContainer);
+	}
+
+	/**
+	 * Click and open a product container.
+	 *
+	 * @param container Container element of the product.
+	 * @returns {Promise<ProductPage>}
+	 */
+	async openProductContainer(container) {
+		// click to open and instantiate product page class.
+		await container.click();
+		await this.waitReadyState();
+
+		const currentURL = await this._driver.getCurrentUrl().then((url) => url);
+		return await new ProductPage(this._driver, currentURL);
 	}
 }
 
