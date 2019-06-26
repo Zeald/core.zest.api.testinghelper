@@ -55,7 +55,11 @@ describe('Test', () => {
 		await categoryPage.closeModalIfExist();
 
 		const productPageWithOption = await categoryPage.openProductWithOption();
-		await productPageWithOption.open();
+		// await productPageWithOption.verifyOptionsPresence(null, true);
+		// await productPageWithOption.verifyDescriptionPresence(null, true);
+		// await productPageWithOption.verifyProductImagePresence(null, true);
+		// await productPageWithOption.zoomProductImage();
+		await productPageWithOption.testOptions();
 	});
 
 	after(async () => {
