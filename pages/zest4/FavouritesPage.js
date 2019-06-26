@@ -1,13 +1,13 @@
 const { By } = require('selenium-webdriver');
 const { expect } = require('chai');
 const { notDefined, pickRandom } = require('../../helpers/functions');
-const { CategoryPage } = require('./CategoryPage');
+const { SuperCategoryPage } = require('./SuperCategoryPage');
 
 /**
  * Favourites page class
  *
  */
-class FavouritesPage extends CategoryPage {
+class FavouritesPage extends SuperCategoryPage {
 	/**
 	 * Constructor
 	 *

@@ -15,7 +15,16 @@
 	"rules": {
 		"indent": ["error", "tab", {
 			"SwitchCase": 1,
-			"VariableDeclarator": 2
+			"VariableDeclarator": 2,
+			"FunctionDeclaration": {
+				"body": 1,
+				"parameters": 2
+			},
+			"FunctionExpression": {
+				"body": 1,
+				"parameters": 3
+			},
+			"CallExpression": {"arguments": "first"}
 		}],
 		"no-tabs": ["error", { "allowIndentationTabs": true }],
 		"object-curly-spacing": ["error", "always"],
