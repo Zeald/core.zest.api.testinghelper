@@ -18,6 +18,7 @@ class ProductPage extends Page {
 	 * @param enquireButtonSelector The locator for enquire cart button.
 	 * @param closeModalButtonLocator The locator for close modal button.
 	 * @param productOptionLocator The locator for the options.
+	 * @param productAdvanceOptionLocator The locator for the advance option.
 	 * @param descriptionLocator The locator for description.
 	 * @param productImageLocator The locator for product image.
 	 * @param productLargeImageLocator The locator for the larger version of product image.
@@ -26,13 +27,14 @@ class ProductPage extends Page {
 	 * @param priceLocator The locator for the price.
 	 */
 	constructor(webdriver, url, addToCartButtonLocator, enquireButtonSelector, closeModalButtonLocator,
-				productOptionLocator, descriptionLocator, productImageLocator, productLargeImageLocator,
-				productImageZoomLocator, productLargeImageCloseLocator, priceLocator) {
+				productOptionLocator, productAdvanceOptionLocator, descriptionLocator, productImageLocator,
+				productLargeImageLocator, productImageZoomLocator, productLargeImageCloseLocator, priceLocator) {
 		super(webdriver, url, closeModalButtonLocator);
 
 		this._addToCartButtonLocator = addToCartButtonLocator;
 		this._enquireButtonSelector = enquireButtonSelector;
 		this._productOptionLocator = productOptionLocator;
+		this._productAdvanceOptionLocator = productAdvanceOptionLocator;
 		this._descriptionLocator = descriptionLocator;
 		this._productImageLocator = productImageLocator;
 		this._productLargeImageLocator = productLargeImageLocator;
@@ -47,6 +49,8 @@ class ProductPage extends Page {
 			By.xpath("//a[@class='zbtn' and contains(@href,'enquiry')]") : this._enquireButtonSelector;
 		this._productOptionLocator = notDefined(this._productOptionLocator) ?
 			By.css('form.order .option') : this._productOptionLocator;
+		this._productAdvanceOptionLocator = notDefined(this._productAdvanceOptionLocator) ?
+			By.css('form.order #variant-code') : this._productAdvanceOptionLocator;
 		this._descriptionLocator = notDefined(this._descriptionLocator) ?
 			By.css('.full-description') : this._descriptionLocator;
 		this._productImageLocator = notDefined(this._productImageLocator) ?
@@ -86,6 +90,15 @@ class ProductPage extends Page {
 	 */
 	set productOptionLocator(value) {
 		this._productOptionLocator = value;
+	}
+
+	/**
+	 * Set product advance option locator.
+	 *
+	 * @param value Locator
+	 */
+	set productAdvanceOptionLocator(value) {
+		this._productAdvanceOptionLocator = value;
 	}
 
 	/**
@@ -224,9 +237,10 @@ class ProductPage extends Page {
 	 *
 	 * @param productURL The URL of the product.
 	 * @param assert This will dictate if need to execute assert rather returning the result.
+	 * @param expectedDescription The expected description
 	 * @returns {Promise<*>}
 	 */
-	async verifyDescriptionPresence(productURL, assert) {
+	async verifyDescriptionPresence(productURL, assert, expectedDescription) {
 		if (!notDefined(productURL)) {
 			this._url = productURL;
 			await this.open();
@@ -246,11 +260,16 @@ class ProductPage extends Page {
 			}
 		} else {
 			// check if description content is present
-			const descriptionContent = await description.getText().then((text) => text);
-			const result = await !notDefined(descriptionContent);
+			const descriptionContent = await description.getText().then((text) => text.trim());
+			let result = await !notDefined(descriptionContent);
+
+			if (!notDefined(descriptionContent) && !notDefined(expectedDescription)) {
+				// this means expected description should match to the current live description
+				result = await descriptionContent.includes(expectedDescription);
+			}
 
 			if (assert) {
-				return await expect(result, 'This product has empty description!').to.be.true;
+				return await expect(result, 'Expected description not match to the expected!').to.be.true;
 			} else {
 				return await result;
 			}
@@ -310,6 +329,45 @@ class ProductPage extends Page {
 	}
 
 	/**
+	 * Get the options
+	 *
+	 * @returns {Promise<*|*|Array>}
+	 */
+	async getOptions() {
+		// get all options
+		return await this._driver.findElements(this._productOptionLocator);
+	}
+
+	/**
+	 * Get the advance option
+	 *
+	 * @returns {Promise<void>}
+	 */
+	async getAdvanceOption() {
+		// get all options
+		return await this._driver.findElement(this._productAdvanceOptionLocator);
+	}
+
+	/**
+	 * Get tje price element
+	 *
+	 * @returns {Promise<void>}
+	 */
+	async getPrice() {
+		return await this._driver.findElement(this._priceLocator);
+	}
+
+	/**
+	 * Get the price content
+	 *
+	 * @returns {Promise<*>}
+	 */
+	async getPriceContent() {
+		const priceElement = await this.getPrice();
+		return await priceElement.getText().then((text) => text.trim());
+	}
+
+	/**
 	 * Test every options
 	 *
 	 * @returns {Promise<void>}
@@ -326,17 +384,7 @@ class ProductPage extends Page {
 				.getText().then((text) => text.trim());
 
 			for (let n = 0; n < totalItems; n++) {
-				const result = await this.selectOption(options[i], n);
-				// click to open the options
-				if (result) {
-					// check if price has change if so then stop testing the other options.
-					const currentPrice = await this._driver.findElement(this._priceLocator)
-						.getText().then((text) => text.trim());
-
-					if (!isEqual(initialPrice, currentPrice)) {
-						break;
-					}
-				}
+				await this.selectOption(options[i], n);
 			}
 		}
 	}
