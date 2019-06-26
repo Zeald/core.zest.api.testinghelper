@@ -19,14 +19,11 @@ class ProductPage extends Page {
 	constructor(webdriver, url, addToCartButtonLocator, enquireButtonSelector, closeModalButtonLocator) {
 		super(webdriver, url, closeModalButtonLocator);
 
-		this._addToCartButtonLocator = addToCartButtonLocator;
-		this._enquireButtonSelector = enquireButtonSelector;
-
 		// initialize locators if not defined
-		this._addToCartButtonLocator = notDefined(this._addToCartButtonLocator) ?
-			By.css('.btn_addcart, .add_to_cart_button') : this._addToCartButtonLocator;
-		this._enquireButtonSelector = notDefined(this._enquireButtonSelector) ?
-			By.xpath("//a[@class='zbtn' and contains(@href,'enquiry')]") : this._enquireButtonSelector;
+		this._addToCartButtonLocator = notDefined(addToCartButtonLocator) ?
+			By.css('.btn_addcart, .add_to_cart_button') : addToCartButtonLocator;
+		this._enquireButtonSelector = notDefined(enquireButtonSelector) ?
+			By.xpath("//a[@class='zbtn' and contains(@href,'enquiry')]") : enquireButtonSelector;
 	}
 
 	/**

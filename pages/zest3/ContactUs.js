@@ -25,42 +25,30 @@ class ContactUs extends Page {
 	 * @param hashedCaptchaInputLocator The hashed value hidden input form locator.
 	 * @param submitButtonLocator The locator for submit button.
 	 */
-	constructor(
-		webdriver, url, closeModalButtonLocator, fromEmailInputLocator, firstNameInputLocator,
-		lastNameInputLocator, countryInputLocator, subjectInputLocator, enquiryInputLocator, captchaInputLocator,
-		hashedCaptchaInputLocator, submitButtonLocator) {
+	constructor(webdriver, url, closeModalButtonLocator, fromEmailInputLocator, firstNameInputLocator,
+				lastNameInputLocator, countryInputLocator, subjectInputLocator, enquiryInputLocator,
+				captchaInputLocator, hashedCaptchaInputLocator, submitButtonLocator) {
 		super(webdriver, url, closeModalButtonLocator);
 
-		this._fromEmailInputLocator = fromEmailInputLocator;
-		this._firstNameInputLocator = firstNameInputLocator;
-		this._lastNameInputLocator = lastNameInputLocator;
-		this._countryInputLocator = countryInputLocator;
-		this._subjectInputLocator = subjectInputLocator;
-		this._enquiryInputLocator = enquiryInputLocator;
-		this._hashedCaptchaInputLocator = hashedCaptchaInputLocator;
-		this._captchaInputLocator = captchaInputLocator;
-		this._submitButtonLocator = submitButtonLocator;
-
 		// initialize locators if not defined
-		this._fromEmailInputLocator = notDefined(this._fromEmailInputLocator) ?
-			By.xpath("//input[@name='from_email']") : this._fromEmailInputLocator;
-		this._firstNameInputLocator = notDefined(this._firstNameInputLocator) ?
-			By.xpath("//input[@name='fname']") : this._firstNameInputLocator;
-		this._lastNameInputLocator = notDefined(this._lastNameInputLocator) ?
-			By.xpath("//input[@name='lname']") : this._lastNameInputLocator;
-		this._countryInputLocator = notDefined(this._countryInputLocator) ?
-			By.xpath("//input[@name='q6']") : this._countryInputLocator;
-		this._subjectInputLocator = notDefined(this._subjectInputLocator) ?
-			By.xpath("//input[@name='query_sku']") : this._subjectInputLocator;
-		this._enquiryInputLocator = notDefined(this._enquiryInputLocator) ?
-			By.xpath("//textarea[@name='enquiry_text']") : this._enquiryInputLocator;
-
-		this._hashedCaptchaInputLocator = notDefined(this._hashedCaptchaInputLocator) ?
-			By.xpath("//input[@name='antispam_encoded']") : this._hashedCaptchaInputLocator;
-		this._captchaInputLocator = notDefined(this._captchaInputLocator) ?
-			By.xpath("//input[@name='antispam']") : this._captchaInputLocator;
-		this._submitButtonLocator = notDefined(this._submitButtonLocator) ?
-			By.xpath("//input[@name='submit_button']") : this._submitButtonLocator;
+		this._fromEmailInputLocator = notDefined(fromEmailInputLocator) ?
+			By.xpath("//input[@name='from_email']") : fromEmailInputLocator;
+		this._firstNameInputLocator = notDefined(firstNameInputLocator) ?
+			By.xpath("//input[@name='fname']") : firstNameInputLocator;
+		this._lastNameInputLocator = notDefined(lastNameInputLocator) ?
+			By.xpath("//input[@name='lname']") : lastNameInputLocator;
+		this._countryInputLocator = notDefined(countryInputLocator) ?
+			By.xpath("//input[@name='q6']") : countryInputLocator;
+		this._subjectInputLocator = notDefined(subjectInputLocator) ?
+			By.xpath("//input[@name='query_sku']") : subjectInputLocator;
+		this._enquiryInputLocator = notDefined(enquiryInputLocator) ?
+			By.xpath("//textarea[@name='enquiry_text']") : enquiryInputLocator;
+		this._hashedCaptchaInputLocator = notDefined(hashedCaptchaInputLocator) ?
+			By.xpath("//input[@name='antispam_encoded']") : hashedCaptchaInputLocator;
+		this._captchaInputLocator = notDefined(captchaInputLocator) ?
+			By.xpath("//input[@name='antispam']") : captchaInputLocator;
+		this._submitButtonLocator = notDefined(submitButtonLocator) ?
+			By.xpath("//input[@name='submit_button']") : submitButtonLocator;
 	}
 
 	/**

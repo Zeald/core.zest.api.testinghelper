@@ -19,14 +19,11 @@ class CategoryPage extends Page {
 	constructor(webdriver, url, catViewLocator, productLinkLocator) {
 		super(webdriver, url);
 
-		this._catViewLocator = catViewLocator;
-		this._productLinkLocator = productLinkLocator;
-
 		// initialize locators if not defined
-		this._catViewLocator = notDefined(this._catViewLocator) ?
-			By.css('div.catview') : this._catViewLocator;
-		this._productLinkLocator = notDefined(this._productLinkLocator) ?
-			By.css('.item-list .item-cell a') : this._productLinkLocator;
+		this._catViewLocator = notDefined(catViewLocator) ?
+			By.css('div.catview') : catViewLocator;
+		this._productLinkLocator = notDefined(productLinkLocator) ?
+			By.css('.item-list .item-cell a') : productLinkLocator;
 	}
 
 	/**

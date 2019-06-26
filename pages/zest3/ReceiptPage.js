@@ -19,14 +19,12 @@ class ReceiptPage extends Page {
 	 */
 	constructor(webdriver, url, orderReceiptSectionLocator, orderNumberLocator) {
 		super(webdriver, url);
-		this._orderReceiptSectionLocator = orderReceiptSectionLocator;
-		this._orderNumberLocator = orderNumberLocator;
 
 		// initialize locators if not defined
-		this._orderReceiptSectionLocator = notDefined(this._orderReceiptSectionLocator) ?
-			By.xpath("//div[@class='component_OrderProcess_Receipt']") : this._orderReceiptSectionLocator;
-		this._orderNumberLocator = notDefined(this._orderNumberLocator) ?
-			By.xpath("//*[contains(text(),'ORD')]") : this._orderNumberLocator;
+		this._orderReceiptSectionLocator = notDefined(orderReceiptSectionLocator) ?
+			By.xpath("//div[@class='component_OrderProcess_Receipt']") : orderReceiptSectionLocator;
+		this._orderNumberLocator = notDefined(orderNumberLocator) ?
+			By.xpath("//*[contains(text(),'ORD')]") : orderNumberLocator;
 	}
 
 	/**
