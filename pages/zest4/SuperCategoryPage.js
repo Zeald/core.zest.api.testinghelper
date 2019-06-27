@@ -551,9 +551,11 @@ class SuperCategoryPage extends Page {
 	 * Load the next page.
 	 *
 	 * @param categoryURL The URL of the category.
+	 * @param expectedAddedProductTitles The expected product titles
+	 * @param assert This will dictate if need to execute assert rather returning the result.
 	 * @returns {Promise<*>}
 	 */
-	async goToNextPage(categoryURL) {
+	async goToNextPage(categoryURL, expectedAddedProductTitles, assert) {
 		if (!notDefined(categoryURL)) {
 			this._url = categoryURL;
 			await this.open();
@@ -564,7 +566,7 @@ class SuperCategoryPage extends Page {
 
 		// get the products before loading the next page
 		await this.checkIfProductsExists();
-		const firstPageProducts = await this.getProductURLs().then((urls) => urls);
+		const originalTitles = await this.getProductTitles().then((titles) => titles);
 
 		// get the next page button
 		const isLoadNextPageExist = await this._driver.findElement(this._nextPageLocator).then((element) => {
@@ -589,10 +591,68 @@ class SuperCategoryPage extends Page {
 		await this.checkIfProductsExists();
 
 		// get the new products list if there's any
-		const nextPageProducts = await this.getProductURLs().then((urls) => urls);
-		const isNextPageProductLoaded = await nextPageProducts.length >= firstPageProducts.length;
+		const nextPageProductTitles = await this.getProductTitles().then((titles) => titles);
+		const subsetAdded = await expectedAddedProductTitles.every((val) => nextPageProductTitles.includes(val));
+		const productsAdded = await originalTitles.length < nextPageProductTitles.length;
 
-		return await expect(isNextPageProductLoaded, 'Next page products is not loaded!').to.be.true;
+		// make sure that the expected additional items are loaded and that the total number has changed
+		const result = await subsetAdded && productsAdded;
+
+		if (assert) {
+			return await await expect(result, 'Next page products did not match to expected!').to.be.true;
+		}
+
+		return await result;
+	}
+
+	/**
+	 * Jump to a page page.
+	 *
+	 * @param categoryURL The URL of the category.
+	 * @param pageIndex The index of the page.
+	 * @param expectedTitles The expected list of titles.
+	 * @param assert This will dictate if need to execute assert rather returning the result.
+	 * @returns {Promise<void>}
+	 */
+	async jumpPage(categoryURL, pageIndex, expectedTitles, assert) {
+		if (!notDefined(categoryURL)) {
+			this._url = categoryURL;
+			await this.open();
+		}
+
+		pageIndex = notDefined(pageIndex) ? 1 : pageIndex;
+
+		// wait for ready state
+		await this.waitReadyState();
+
+		const pageSelector = await this._driver.findElement(this._loadPageDropDownLocator);
+		await this.scrollTo(pageSelector);
+		await this.performSleep();
+
+		// click the page selector
+		await pageSelector.click();
+		await this.performSleep();
+
+		// get all the pages under the drop down
+		const pages = await pageSelector.findElements(this._pagesLocator).then((pages) => pages);
+		// pick a random page to jump in
+		const page = await pages[pageIndex];
+		// click the page
+		await page.click();
+
+		await this.performSleep();
+
+		// verify if there are products
+		await this.checkIfProductsExists();
+
+		const currentTitles = await this.getProductTitles().then((titles) => titles);
+		const result = isEqual(currentTitles, expectedTitles);
+
+		if (assert) {
+			return await expect(result, 'The page products did not match to expected!').to.be.true;
+		}
+
+		return await result;
 	}
 
 	/**
@@ -638,10 +698,11 @@ class SuperCategoryPage extends Page {
 	 *
 	 * @param sortIndex Index of the sort option.
 	 * @param categoryURL categoryURL The URL of the category.
+	 * @param expectedTitleOrder The expected order of the product titles.
 	 * @param assert This will dictate if need to execute assert rather returning the result.
 	 * @returns {Promise<*>}
 	 */
-	async productSort(sortIndex, categoryURL, assert) {
+	async productSort(sortIndex, categoryURL, expectedTitleOrder, assert) {
 		if (!notDefined(categoryURL)) {
 			this._url = categoryURL;
 			await this.open();
@@ -653,7 +714,7 @@ class SuperCategoryPage extends Page {
 		sortIndex = notDefined(sortIndex) ? 0 : sortIndex;
 
 		// get the original list of product titles in the current order.
-		const productTitlesOriginalOrder = await this.getProductTitles().then((titles) => titles);
+		// const productTitlesOriginalOrder = await this.getProductTitles().then((titles) => titles);
 
 		const productSortingSelect = await this._driver.findElement(this._productSortingLocator);
 		// scroll tp the sorting dropdown
@@ -671,14 +732,17 @@ class SuperCategoryPage extends Page {
 		// put sleep here just to be sure that loader has gone away and products are loaded.
 		await this.performSleep(6000);
 
+		// check if there are still products
+		await this.checkIfProductsExists();
+
 		// get the original list of products in their new order
 		const productTitlesNewOrder = await this.getProductTitles().then((titles) => titles);
 
 		// compare if still exactly the same order
-		const result = await isEqual(productTitlesOriginalOrder, productTitlesNewOrder);
+		const result = await isEqual(expectedTitleOrder, productTitlesNewOrder);
 
 		if (assert) {
-			return await expect(result, 'No ordering happened!').to.be.false;
+			return await expect(result, 'New ordered list did not match to the expected!').to.be.true;
 		}
 
 		return await result;
@@ -688,9 +752,10 @@ class SuperCategoryPage extends Page {
 	 * Add product to cart.
 	 *
 	 * @param productIndex Index of the product in the list.
+	 * @param assert This will dictate if need to execute assert rather returning the result.
 	 * @returns {Promise<*>}
 	 */
-	async addProductToCart(productIndex) {
+	async addProductToCart(productIndex, assert) {
 		let productContainer = null;
 		const productContainers = await this.getProductContainers().then((containers) => containers);
 
@@ -741,7 +806,14 @@ class SuperCategoryPage extends Page {
 			return isEqual(productTitle.toUpperCase(), title);
 		});
 
-		return await expect(resultTitle, 'Product not in the cart!').to.be.a('string');
+		// if null or not defined it means that the added product is not on the popup cart.
+		const result = await !notDefined(resultTitle);
+
+		if (assert) {
+			return await expect(result, 'Product not in the cart!').to.be.true;
+		}
+
+		return await result;
 	}
 
 	/**
