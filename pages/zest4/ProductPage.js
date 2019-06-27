@@ -216,9 +216,9 @@ class ProductPage extends Page {
 
 		if (assert) {
 			return await expect(result, 'This product does not have any option!').to.be.true;
-		} else {
-			return await result;
 		}
+
+		return await result;
 	}
 
 	/**
@@ -286,9 +286,9 @@ class ProductPage extends Page {
 
 		if (assert) {
 			return await expect(result, 'This product does not have any image!').to.be.true;
-		} else {
-			return await result;
 		}
+
+		return await result;
 	}
 
 	/**
@@ -392,7 +392,7 @@ class ProductPage extends Page {
 		// click to open the options
 		await optionElement.click();
 
-		if (notDefined(index) && !Number.isInteger(index)) {
+		if (notDefined(index)) {
 			selectedItem = await pickRandom(...items);
 		} else {
 			selectedItem = await items[index];
