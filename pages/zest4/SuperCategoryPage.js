@@ -563,6 +563,7 @@ class SuperCategoryPage extends Page {
 
 		// wait for ready state
 		await this.waitReadyState();
+		await this.performSleep();
 
 		// get the products before loading the next page
 		await this.checkIfProductsExists();
@@ -588,6 +589,7 @@ class SuperCategoryPage extends Page {
 			await this.performSleep();
 		}
 
+		await this.performSleep(5000);
 		await this.checkIfProductsExists();
 
 		// get the new products list if there's any
@@ -624,6 +626,7 @@ class SuperCategoryPage extends Page {
 
 		// wait for ready state
 		await this.waitReadyState();
+		await this.performSleep();
 
 		const pageSelector = await this._driver.findElement(this._loadPageDropDownLocator);
 		await this.scrollTo(pageSelector);
