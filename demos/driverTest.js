@@ -32,34 +32,104 @@ describe('Test', () => {
 		await categoryPage.open();
 		await categoryPage.closeModalIfExist();
 
-		// add products to favourites
-		/*
-		const firstProduct = await categoryPage.addProductToFavourites(2);
-		const secondProduct = await categoryPage.addProductToFavourites();
-		const thirdProduct = await categoryPage.addProductToFavourites();
-		const productTitles = await categoryPage.getProductTitles([firstProduct, secondProduct, thirdProduct])
-			.then((titles) => titles);
+		// check if there are products
+		await categoryPage.checkIfProductsExists();
+		const expectedFilteredTitles = [
+			'MoeMoe 100% Wool Summer Weight Duvet Inner 300gsm',
+			'MoeMoe 100% Wool Duvet Inner 500gsm',
+			'MoeMoe 100% NZ Wool Underlay 500gsm'
+		];
 
-		const favouritesPage = await categoryPage.openFavourites();
-		await favouritesPage.checkIfProductsExists();
-		await favouritesPage.verifyAddedFavouriteProductTitles(productTitles);
-		await favouritesPage.removeProductFromFavourites(0);
-		await favouritesPage.removeAllProductFromFavourites();
-		 */
+		await categoryPage.applyFilter(null, 1, 1, expectedFilteredTitles);
+		const additionalTitles = [
+			'Baksana Linen Sheet Sets',
+			'Baksana Luxury 1000 Thread Count Sateen Sheets / Pillowcases Sold Separately',
+			'Bianca Lorenne - Ajour Sheets - Ivory / Pillowcases sold separately',
+			'Bianca Lorenne - Ajour Sheets - White / Pillowcases sold separately',
+			'Bianca Lorenne - Banbu Sheet Set / Extra Pillowcases Sold Separately',
+			'Bianca Lorenne Livorno White-Taupe Sheets / Pillowcases Sold Separately',
+			'Bianca Lorenne Livorno White-White Sheets/Pillowcases Sold Separately',
+			'Bianca Lorenne Tichette Sheet Set',
+			'MM Linen - Blake Sheet Set - White',
+			'MM Linen Cove Natural Sheet Set / Extra Euros and Pillowcases Sold Separately',
+			'MM Linen Croft 300TC Silver Grey Sheet Set / Extra Pillowcases Sold Separately',
+			'MM Linen Croft 300TC White Sheet Set / Extra Pillowcases Sold Separately',
+			'MM Linen Croft 300TC Ivory Sheet Set / Extra Pillowcases Sold Separately',
+			'MM Linen - Laundered Linen Blush Sheet Set',
+			'MM Linen Laundered Linen Charcoal Sheet Set',
+			'MM Linen Laundered Linen Duckegg Sheet Set',
+			'MM Linen Laundered Linen Natural Sheet Set',
+			'MM Linen Maddon 500TC White Sheet Set / Extra Pillowcases Sold Separately',
+			'MM Linen - French Bee Sheet Set/Eurocases Sold Separately - Duckegg',
+			'Bianca Lorenne - Ajour Pillowcases and Eurocases - White',
+			'Bianca Lorenne Amarento Pillowcase and Eurocase - Duck Egg',
+			'Bianca Lorenne - Amarento  Pillowcase and Eurocase - Ivory',
+			'Bianca Lorenne - Amarento Pillowcase and Eurocase - Natural Linen',
+			'Bianca Lorenne - Amarento Pillowcase and Eurocase - White'
+		];
 
-		// await categoryPage.getProductContainersWithOptions();
-		const productPageWithNoOption = await categoryPage.openProductWithNoOption();
+		await categoryPage.goToNextPage(null, additionalTitles, true);
 
-		// go back to category
-		await categoryPage.open();
-		await categoryPage.closeModalIfExist();
+		const expectedTitles = [
+			'Baksana Linen Sheet Sets',
+			'Baksana Luxury 1000 Thread Count Sateen Sheets / Pillowcases Sold Separately',
+			'Bianca Lorenne - Ajour Sheets - Ivory / Pillowcases sold separately',
+			'Bianca Lorenne - Ajour Sheets - White / Pillowcases sold separately',
+			'Bianca Lorenne - Banbu Sheet Set / Extra Pillowcases Sold Separately',
+			'Bianca Lorenne Livorno White-Taupe Sheets / Pillowcases Sold Separately',
+			'Bianca Lorenne Livorno White-White Sheets/Pillowcases Sold Separately',
+			'Bianca Lorenne Tichette Sheet Set',
+			'MM Linen - Blake Sheet Set - White',
+			'MM Linen Cove Natural Sheet Set / Extra Euros and Pillowcases Sold Separately',
+			'MM Linen Croft 300TC Silver Grey Sheet Set / Extra Pillowcases Sold Separately',
+			'MM Linen Croft 300TC White Sheet Set / Extra Pillowcases Sold Separately',
+			'MM Linen Croft 300TC Ivory Sheet Set / Extra Pillowcases Sold Separately',
+			'MM Linen - Laundered Linen Blush Sheet Set',
+			'MM Linen Laundered Linen Charcoal Sheet Set',
+			'MM Linen Laundered Linen Duckegg Sheet Set',
+			'MM Linen Laundered Linen Natural Sheet Set',
+			'MM Linen Maddon 500TC White Sheet Set / Extra Pillowcases Sold Separately',
+			'MM Linen - French Bee Sheet Set/Eurocases Sold Separately - Duckegg',
+			'Bianca Lorenne - Ajour Pillowcases and Eurocases - White',
+			'Bianca Lorenne Amarento Pillowcase and Eurocase - Duck Egg',
+			'Bianca Lorenne - Amarento  Pillowcase and Eurocase - Ivory',
+			'Bianca Lorenne - Amarento Pillowcase and Eurocase - Natural Linen',
+			'Bianca Lorenne - Amarento Pillowcase and Eurocase - White'
+		];
 
-		const productPageWithOption = await categoryPage.openProductWithOption();
-		// await productPageWithOption.verifyOptionsPresence(null, true);
-		// await productPageWithOption.verifyDescriptionPresence(null, true);
-		// await productPageWithOption.verifyProductImagePresence(null, true);
-		// await productPageWithOption.zoomProductImage();
-		await productPageWithOption.testOptions();
+		await categoryPage.jumpPage(null, null, expectedTitles, true);
+
+		const expectedSortedTitles = [
+			'100% Cotton Knitted Baby Blanket',
+			'Baksana - 80/20 Summer Hungarian Goose Down Feather Duvet Inner',
+			'Baksana - 95/5 Summer White Hungarian Goose Down Feather Duvet Inner',
+			'Baksana - Basketweave Duvet Cover Set',
+			'Baksana - Bloom Duvet Cover Set',
+			'Baksana - Calm Waters Bedspread Set - Duck Egg',
+			'Baksana - Calm Waters Bedspread Set - White',
+			'Baksana - Camille Duvet Cover Set',
+			'Baksana - Country Garden King Duvet Cover Set - ON SALE',
+			'Baksana - Divine Cotton Throws',
+			'Baksana - Flora Duvet Cover Set',
+			'Baksana - Florence Duvet Cover Set',
+			'Baksana - Lilac Duvet Cover Set - King - ON SALE',
+			'Baksana - Linen Duvet Cover Set',
+			'Baksana - Lucky Clover King Duvet Cover Set - ON SALE',
+			'Baksana - Mauve Eden Duvet Cover set',
+			'Baksana - Morrisey King Duvet Cover Set - ON SALE',
+			'Baksana - New Bliss Stonewashed Blankets',
+			'Baksana - New Bliss Stonewashed Blankets',
+			'Baksana - New Bliss Stonewashed Blankets',
+			'Baksana - New Bliss Stonewashed Blankets',
+			'Baksana - New Bliss Stonewashed Blankets',
+			'Baksana - Palace Duvet Cover Set',
+			'Baksana - Prairie Cotton Throws'
+		];
+
+		await categoryPage.productSort(1, null, expectedSortedTitles, true);
+
+		await categoryPage.addProductToCart(1, true);
+		await categoryPage.addProductToFavourites();
 	});
 
 	after(async () => {
