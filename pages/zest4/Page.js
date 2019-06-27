@@ -16,14 +16,13 @@ class Page {
 	constructor(webdriver, url, closeModalButtonLocator) {
 		this._driver = webdriver;
 		this._url = url;
-		this._closeModalButtonLocator = closeModalButtonLocator;
 
 		// explicit sleep in milliseconds for every action
 		this._explicitSleep = 3000;
 
 		// set the default locator of modal if not specified
-		this._closeModalButtonLocator = notDefined(this._closeModalButtonLocator) ?
-			By.className('mc-closeModal') : this._closeModalButtonLocator;
+		this._closeModalButtonLocator = notDefined(closeModalButtonLocator) ?
+			By.className('mc-closeModal') : closeModalButtonLocator;
 	}
 
 	/**

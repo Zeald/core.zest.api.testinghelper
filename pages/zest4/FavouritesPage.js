@@ -18,10 +18,8 @@ class FavouritesPage extends SuperCategoryPage {
 	constructor(webdriver, url, removeFromFavouritesLocator) {
 		super(webdriver, url);
 
-		this._removeFromFavouritesLocator = removeFromFavouritesLocator;
-
-		this._removeFromFavouritesLocator = notDefined(this._removeFromFavouritesLocator) ?
-			By.css('.add-favourite.selected') : this._removeFromFavouritesLocator;
+		this._removeFromFavouritesLocator = notDefined(removeFromFavouritesLocator) ?
+			By.css('.add-favourite.selected') : removeFromFavouritesLocator;
 	}
 
 	/**
@@ -38,11 +36,17 @@ class FavouritesPage extends SuperCategoryPage {
 	 *
 	 * @returns {Promise<*>}
 	 * @param addedProductTitles Title of the products added to favourites.
+	 * @param assert This will dictate if need to execute assert rather returning the result.
 	 */
-	async verifyAddedFavouriteProductTitles(addedProductTitles) {
+	async verifyAddedFavouriteProductTitles(addedProductTitles, assert) {
 		const favouritesPageProductTitles = await this.getProductTitles().then((titles) => titles);
 		const isAddedASubset = await addedProductTitles.every((val) => favouritesPageProductTitles.includes(val));
-		return await expect(isAddedASubset, 'Not all products added to favourites!').to.be.true;
+
+		if (assert) {
+			return await expect(isAddedASubset, 'Not all products added to favourites!').to.be.true;
+		}
+
+		return await isAddedASubset;
 	}
 
 	/**
@@ -63,7 +67,7 @@ class FavouritesPage extends SuperCategoryPage {
 	 * @param productIndex Index of the product in the list.
 	 * @returns {Promise<T | boolean>}
 	 */
-	async removeProductFromFavourites(productIndex) {
+	async removeProductFromFavourites(productIndex, assert) {
 		let productContainer = null;
 		const productContainers = await this.getProductContainers().then((containers) => containers);
 
@@ -92,7 +96,11 @@ class FavouritesPage extends SuperCategoryPage {
 		// check if the others are not removed
 		await this.checkIfProductsExists();
 
-		return await expect(!exists, 'Product was not removed from favourites!').to.be.true;
+		if (assert) {
+			return await expect(!exists, 'Product was not removed from favourites!').to.be.true;
+		}
+
+		return await !exists;
 	}
 
 	/**
@@ -100,7 +108,7 @@ class FavouritesPage extends SuperCategoryPage {
 	 *
 	 * @returns {Promise<*>}
 	 */
-	async removeAllProductFromFavourites() {
+	async removeAllProductFromFavourites(assert) {
 		const productContainers = await this.getProductContainers().then((containers) => containers);
 		const removePromises = [];
 
@@ -119,7 +127,12 @@ class FavouritesPage extends SuperCategoryPage {
 
 		// check if the others are not removed
 		const exists = await this.checkIfProductsExists(null, false);
-		return await expect(!exists, 'Not all products are removed!').to.be.true;
+
+		if (assert) {
+			return await expect(!exists, 'Not all products are removed!').to.be.true;
+		}
+
+		return await !exists;
 	}
 }
 

@@ -18,14 +18,12 @@ class EnquiryReceiptPage extends Page {
 	 */
 	constructor(webdriver, url, enquiryReceiptSectionLocator, acknowledgmentTextRegex) {
 		super(webdriver, url);
-		this._enquiryReceiptSectionLocator = enquiryReceiptSectionLocator;
-		this._acknowledgmentTextRegex = acknowledgmentTextRegex;
 
 		// initialize locators if not defined
-		this._enquiryReceiptSectionLocator = notDefined(this._enquiryReceiptSectionLocator) ?
-			By.css('div.component_CustomerService_EnquiryReceipt') : this._enquiryReceiptSectionLocator;
-		this._acknowledgmentTextRegex = notDefined(this._acknowledgmentTextRegex) ?
-			/[Tt]hank\syou\sfor\syour\senquiry/ : this._acknowledgmentTextRegex;
+		this._enquiryReceiptSectionLocator = notDefined(enquiryReceiptSectionLocator) ?
+			By.css('div.component_CustomerService_EnquiryReceipt') : enquiryReceiptSectionLocator;
+		this._acknowledgmentTextRegex = notDefined(acknowledgmentTextRegex) ?
+			/[Tt]hank\syou\sfor\syour\senquiry/ : acknowledgmentTextRegex;
 	}
 
 	/**

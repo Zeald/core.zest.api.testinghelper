@@ -3,6 +3,7 @@ const { expect } = require('chai');
 const { Page } = require('./Page');
 const { CheckoutPage } = require('./CheckoutPage');
 const { ContactUs } = require('./ContactUs');
+const { SearchResultPage } = require('./SearchResultPage');
 const { notDefined } = require('../../helpers/functions');
 
 /**
@@ -24,27 +25,22 @@ class HomePage extends Page {
 	 * @param searchResultLocator The search result locator.
 	 */
 	constructor(webdriver, url, closeModalButtonLocator, cartLocator, checkoutButtonLocator, contactUsLocator,
-		searchInputLocator, searchButtonLocator, searchResultLocator) {
+				searchInputLocator, searchButtonLocator, searchResultLocator) {
 		super(webdriver, url, closeModalButtonLocator);
-		this._cartLocator = cartLocator;
-		this._checkoutButtonLocator = checkoutButtonLocator;
-		this._contactUsLocator = contactUsLocator;
-		this._searchInputLocator = searchInputLocator;
-		this._searchButtonLocator = searchButtonLocator;
-		this._searchResultLocator = searchResultLocator;
 
 		// initialize locators if not defined
-		this._cartLocator = notDefined(this._cartLocator) ? By.id('mini-cart') : this._cartLocator;
-		this._checkoutButtonLocator = notDefined(this._checkoutButtonLocator) ?
-			By.id('checkout') : this._checkoutButtonLocator;
-		this._contactUsLocator = notDefined(this._contactUsLocator) ?
-			By.xpath("//a[contains(text(),'Contact Us')]") : this._contactUsLocator;
-		this._searchInputLocator = notDefined(this._searchInputLocator) ?
-			By.css("form.search-form > input[type='search']") : this._searchInputLocator;
-		this._searchButtonLocator = notDefined(this._searchButtonLocator) ?
-			By.css("form.search-form > button[type='submit']") : this._searchButtonLocator;
-		this._searchResultLocator = notDefined(this._searchResultLocator) ?
-			By.css('.title.search') : this._searchResultLocator;
+		this._cartLocator = notDefined(cartLocator) ?
+			By.id('mini-cart') : cartLocator;
+		this._checkoutButtonLocator = notDefined(checkoutButtonLocator) ?
+			By.id('checkout') : checkoutButtonLocator;
+		this._contactUsLocator = notDefined(contactUsLocator) ?
+			By.xpath("//a[contains(text(),'Contact Us')]") : contactUsLocator;
+		this._searchInputLocator = notDefined(searchInputLocator) ?
+			By.css("form.search-form > input[type='search']") : searchInputLocator;
+		this._searchButtonLocator = notDefined(searchButtonLocator) ?
+			By.css("form.search-form > button[type='submit']") : searchButtonLocator;
+		this._searchResultLocator = notDefined(searchResultLocator) ?
+			By.css('.title.search') : searchResultLocator;
 	}
 
 	/**
@@ -183,10 +179,9 @@ class HomePage extends Page {
 
 		// check if result contains the search term
 		await this._driver.wait(until.elementLocated(this._searchResultLocator), 10000);
-		const searchResultContent = await this._driver.findElement(this._searchResultLocator)
-			.getText().then((text) => text);
-		// result contains the search term
-		return await expect(searchResultContent).to.have.string(term);
+
+		const currentURL = await this._driver.getCurrentUrl().then((url) => url);
+		return await new SearchResultPage(this._driver, currentURL);
 	}
 }
 

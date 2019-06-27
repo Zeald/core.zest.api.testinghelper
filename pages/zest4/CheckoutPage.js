@@ -25,37 +25,29 @@ class CheckoutPage extends Page {
 	 * @param placeOrderButtonLocator The place order button locator.
 	 */
 	constructor(webdriver, url, firstNameInputLocator, lastNameInputLocator, companyInputLocator, addressInputLocator,
-		cityInputLocator, phoneInputLocator, emailInputLocator, directCreditInputLocator, placeOrderButtonLocator) {
+				cityInputLocator, phoneInputLocator, emailInputLocator, directCreditInputLocator,
+				placeOrderButtonLocator) {
 		super(webdriver, url);
-		this._firstNameInputLocator = firstNameInputLocator;
-		this._lastNameInputLocator = lastNameInputLocator;
-		this._companyInputLocator = companyInputLocator;
-		this._addressInputLocator = addressInputLocator;
-		this._cityInputLocator = cityInputLocator;
-		this._phoneInputLocator = phoneInputLocator;
-		this._emailInputLocator = emailInputLocator;
-		this._directCreditInputLocator = directCreditInputLocator;
-		this._placeOrderButtonLocator = placeOrderButtonLocator;
 
 		// initialize locators if not defined
-		this._firstNameInputLocator = notDefined(this._firstNameInputLocator) ?
-			By.xpath("//input[@name='b_fname']") : this._firstNameInputLocator;
-		this._lastNameInputLocator = notDefined(this._lastNameInputLocator) ?
-			By.xpath("//input[@name='b_lname']") : this._lastNameInputLocator;
-		this._companyInputLocator = notDefined(this._companyInputLocator) ?
-			By.xpath("//input[@name='b_company']") : this._companyInputLocator;
-		this._addressInputLocator = notDefined(this._addressInputLocator) ?
-			By.xpath("//input[@name='b_address1']") : this._addressInputLocator;
-		this._cityInputLocator = notDefined(this._cityInputLocator) ?
-			By.xpath("//input[@name='b_city']") : this._cityInputLocator;
-		this._phoneInputLocator = notDefined(this._phoneInputLocator) ?
-			By.xpath("//input[@name='b_phone']") : this._phoneInputLocator;
-		this._emailInputLocator = notDefined(this._emailInputLocator) ?
-			By.xpath("//input[@name='email']") : this._emailInputLocator;
-		this._directCreditInputLocator = notDefined(this._directCreditInputLocator) ?
-			By.xpath("//input[@value='directcredit'][@type='radio']") : this._directCreditInputLocator;
-		this._placeOrderButtonLocator = notDefined(this._placeOrderButtonLocator) ?
-			By.xpath("//*[contains(@value, 'Place Order')]") : this._placeOrderButtonLocator;
+		this._firstNameInputLocator = notDefined(firstNameInputLocator) ?
+			By.xpath("//input[@name='b_fname']") : firstNameInputLocator;
+		this._lastNameInputLocator = notDefined(lastNameInputLocator) ?
+			By.xpath("//input[@name='b_lname']") : lastNameInputLocator;
+		this._companyInputLocator = notDefined(companyInputLocator) ?
+			By.xpath("//input[@name='b_company']") : companyInputLocator;
+		this._addressInputLocator = notDefined(addressInputLocator) ?
+			By.xpath("//input[@name='b_address1']") : addressInputLocator;
+		this._cityInputLocator = notDefined(cityInputLocator) ?
+			By.xpath("//input[@name='b_city']") : cityInputLocator;
+		this._phoneInputLocator = notDefined(phoneInputLocator) ?
+			By.xpath("//input[@name='b_phone']") : phoneInputLocator;
+		this._emailInputLocator = notDefined(emailInputLocator) ?
+			By.xpath("//input[@name='email']") : emailInputLocator;
+		this._directCreditInputLocator = notDefined(directCreditInputLocator) ?
+			By.xpath("//input[@value='directcredit'][@type='radio']") : directCreditInputLocator;
+		this._placeOrderButtonLocator = notDefined(placeOrderButtonLocator) ?
+			By.xpath("//*[contains(@value, 'Place Order')]") : placeOrderButtonLocator;;
 	}
 
 	/**

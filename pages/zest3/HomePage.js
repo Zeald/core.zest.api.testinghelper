@@ -20,17 +20,14 @@ class HomePage extends Page {
 	 */
 	constructor(webdriver, url, cartLocator, checkoutButtonLocator, contactUsLocator) {
 		super(webdriver, url);
-		this._cartLocator = cartLocator;
-		this._checkoutButtonLocator = checkoutButtonLocator;
-		this._contactUsLocator = contactUsLocator;
 
 		// initialize locators if not defined
-		this._cartLocator = notDefined(this._cartLocator) ?
-			By.css('div#mini_cart a:first-of-type') : this._cartLocator;
-		this._checkoutButtonLocator = notDefined(this._checkoutButtonLocator) ?
-			By.css('input.btn_cart_co[type=submit]') : this._checkoutButtonLocator;
-		this._contactUsLocator = notDefined(this._contactUsLocator) ?
-			By.xpath("//a[contains(text(),'Contact Us')]") : this._contactUsLocator;
+		this._cartLocator = notDefined(cartLocator) ?
+			By.css('div#mini_cart a:first-of-type') : cartLocator;
+		this._checkoutButtonLocator = notDefined(checkoutButtonLocator) ?
+			By.css('input.btn_cart_co[type=submit]') : checkoutButtonLocator;
+		this._contactUsLocator = notDefined(contactUsLocator) ?
+			By.xpath("//a[contains(text(),'Contact Us')]") : contactUsLocator;
 	}
 
 	/**

@@ -33,73 +33,53 @@ class SuperCategoryPage extends Page {
 	 * @param addToFavouritesLocator The locator of add product to favourites.
 	 * @param favouritesPageButtonLocator The locator of favourites page locator
 	 */
-	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator,
-				filtersLocator, showFiltersLocator, closeFiltersButtonLocator, nextPageLocator,
-				loadPageDropDownLocator, pageLoaderLocator, pagesLocator, productSortingLocator,
-				productContainerLocator, productSelectOptionsLocator, productAddToCartLocator,
-				productItemTitleLocator, popupCartLocator, popupProductItemTitleLocator,
-				addToFavouritesLocator, favouritesPageButtonLocator) {
+	constructor(webdriver, url, catViewLocator, productLinkLocator, filterGroupLocator, filtersLocator,
+				showFiltersLocator, closeFiltersButtonLocator, nextPageLocator, loadPageDropDownLocator,
+				pageLoaderLocator, pagesLocator, productSortingLocator, productContainerLocator,
+				productSelectOptionsLocator, productAddToCartLocator, productItemTitleLocator, popupCartLocator,
+				popupProductItemTitleLocator, addToFavouritesLocator, favouritesPageButtonLocator) {
 		super(webdriver, url);
 
-		this._catViewLocator = catViewLocator;
-		this._productLinkLocator = productLinkLocator;
-		this._filterGroupLocator = filterGroupLocator;
-		this._filtersLocator = filtersLocator;
-		this._showFiltersLocator = showFiltersLocator;
-		this._closeFiltersButtonLocator = closeFiltersButtonLocator;
-		this._nextPageLocator = nextPageLocator;
-		this._loadPageDropDownLocator = loadPageDropDownLocator;
-		this._pageLoaderLocator = pageLoaderLocator;
-		this._pagesLocator = pagesLocator;
-		this._productSortingLocator = productSortingLocator;
-		this._productContainerLocator = productContainerLocator;
-		this._productSelectOptionsLocator = productSelectOptionsLocator;
-		this._productAddToCartLocator = productAddToCartLocator;
-		this._productItemTitleLocator = productItemTitleLocator;
-		this._popupCartLocator = popupCartLocator;
-		this._popupProductItemTitleLocator = popupProductItemTitleLocator;
-		this._addToFavouritesLocator = addToFavouritesLocator;
-		this._favouritesPageButtonLocator = favouritesPageButtonLocator;
-
 		// initialize locators if not defined
-		this._catViewLocator = notDefined(this._catViewLocator) ?
-			By.css('div.catview') : this._catViewLocator;
-		this._productLinkLocator = notDefined(this._productLinkLocator) ?
-			By.css('.product-collection .product-card a') : this._productLinkLocator;
-		this._filterGroupLocator = notDefined(this._filterGroupLocator) ?
-			By.css('.filter-collection > .filter-group') : this._filterGroupLocator;
-		this._filtersLocator = notDefined(this._filtersLocator) ?
-			By.css('ul > li:not(.empty).filter') : this._filtersLocator;
-		this._showFiltersLocator = notDefined(this._showFiltersLocator) ?
-			By.css('.top-filters .show-filters') : this._showFiltersLocator;
-		this._closeFiltersButtonLocator = notDefined(this._closeFiltersButtonLocator) ?
+		this._catViewLocator = notDefined(catViewLocator) ?
+			By.css('div.catview') : catViewLocator;
+		this._productLinkLocator = notDefined(productLinkLocator) ?
+			By.css('.product-collection .product-card a') : productLinkLocator;
+		this._filterGroupLocator = notDefined(filterGroupLocator) ?
+			By.css('.filter-collection > .filter-group') : filterGroupLocator;
+		this._filtersLocator = notDefined(filtersLocator) ?
+			By.css('ul > li:not(.empty).filter') : filtersLocator;
+		this._showFiltersLocator = notDefined(showFiltersLocator) ?
+			By.css('.top-filters .show-filters') : showFiltersLocator;
+		this._closeFiltersButtonLocator = notDefined(closeFiltersButtonLocator) ?
 			By.xpath("//*[@class='pop-overlay-inner pop-left']//*[@class='close'][contains(text(),'Close')]") :
-			this._closeFiltersButtonLocator;
-		this._nextPageLocator = notDefined(this._nextPageLocator) ?
-			By.css('.load-next') : this._nextPageLocator;
-		this._loadPageDropDownLocator = notDefined(this._loadPageDropDownLocator) ?
-			By.css('.load-page.drop-select') : this._loadPageDropDownLocator;
-		this._pagesLocator = notDefined(this._pagesLocator) ? By.css('ul > li') : this._pagesLocator;
-		this._pageLoaderLocator = notDefined(this._pageLoaderLocator) ?
-			By.css('.loading-overlay') : this._pageLoaderLocator;
-		this._productSortingLocator = notDefined(this._productSortingLocator) ?
-			By.css(".sort > select[name='item_sort_by'].sort-by") : this._productSortingLocator;
-		this._productContainerLocator = notDefined(this._productContainerLocator) ?
-			By.css('.product-card') : this._productContainerLocator;
-		this._productSelectOptionsLocator = notDefined(this._productSelectOptionsLocator) ?
-			By.css('.select-options') : this._productSelectOptionsLocator;
-		this._productAddToCartLocator = notDefined(this._productAddToCartLocator) ?
-			By.css('.add-to-cart') : this._productAddToCartLocator;
-		this._productItemTitleLocator = notDefined(this._productItemTitleLocator) ?
-			By.css('.item-title') : this._productItemTitleLocator;
-		this._popupCartLocator = notDefined(this._popupCartLocator) ?
-			By.css('.popup-cart') : this._popupCartLocator;
-		this._popupProductItemTitleLocator = notDefined(this._popupProductItemTitleLocator) ?
-			By.css('.product-title') : this._popupProductItemTitleLocator;
-		this._addToFavouritesLocator = notDefined(this._addToFavouritesLocator) ?
-			By.css('.add-favourite:not(.selected)') : this._addToFavouritesLocator;
-		this._favouritesPageButtonLocator = notDefined(this._favouritesPageButtonLocator) ?
-			By.css('.view-favourites') : this._favouritesPageButtonLocator;
+			closeFiltersButtonLocator;
+		this._nextPageLocator = notDefined(nextPageLocator) ?
+			By.css('.load-next') : nextPageLocator;
+		this._loadPageDropDownLocator = notDefined(loadPageDropDownLocator) ?
+			By.css('.load-page.drop-select') : loadPageDropDownLocator;
+		this._pageLoaderLocator = notDefined(pageLoaderLocator) ?
+			By.css('.loading-overlay') : pageLoaderLocator;
+		this._pagesLocator = notDefined(pagesLocator) ?
+			By.css('ul > li') : pagesLocator;
+		this._productSortingLocator = notDefined(productSortingLocator) ?
+			By.css(".sort > select[name='item_sort_by'].sort-by") : productSortingLocator;
+		this._productContainerLocator = notDefined(productContainerLocator) ?
+			By.css('.product-card') : productContainerLocator;
+		this._productSelectOptionsLocator = notDefined(productSelectOptionsLocator) ?
+			By.css('.select-options') : productSelectOptionsLocator;
+		this._productAddToCartLocator = notDefined(productAddToCartLocator) ?
+			By.css('.add-to-cart') : productAddToCartLocator;
+		this._productItemTitleLocator = notDefined(productItemTitleLocator) ?
+			By.css('.item-title') : productItemTitleLocator;
+		this._popupCartLocator = notDefined(popupCartLocator) ?
+			By.css('.popup-cart') : popupCartLocator;
+		this._popupProductItemTitleLocator = notDefined(popupProductItemTitleLocator) ?
+			By.css('.product-title') : popupProductItemTitleLocator;
+		this._addToFavouritesLocator = notDefined(popupProductItemTitleLocator) ?
+			By.css('.add-favourite:not(.selected)') : popupProductItemTitleLocator;
+		this._favouritesPageButtonLocator = notDefined(favouritesPageButtonLocator) ?
+			By.css('.view-favourites') : favouritesPageButtonLocator;
 	}
 
 	/**
@@ -569,11 +549,12 @@ class SuperCategoryPage extends Page {
 	/**
 	 * Execute product sort.
 	 *
-	 * @param sortIndex Index of the sort option
+	 * @param sortIndex Index of the sort option.
 	 * @param categoryURL categoryURL The URL of the category.
+	 * @param assert This will dictate if need to execute assert rather returning the result.
 	 * @returns {Promise<*>}
 	 */
-	async productSort(sortIndex, categoryURL) {
+	async productSort(sortIndex, categoryURL, assert) {
 		if (!notDefined(categoryURL)) {
 			this._url = categoryURL;
 			await this.open();
@@ -609,7 +590,11 @@ class SuperCategoryPage extends Page {
 		// compare if still exactly the same order
 		const result = await isEqual(productTitlesOriginalOrder, productTitlesNewOrder);
 
-		return await expect(result, 'No ordering happened!').to.be.false;
+		if (assert) {
+			return await expect(result, 'No ordering happened!').to.be.false;
+		}
+
+		return await result;
 	}
 
 	/**
