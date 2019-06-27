@@ -7,7 +7,7 @@ const { _ } = require('underscore');
  * @returns {boolean}
  */
 const notDefined = (variable) => {
-	return typeof variable === 'undefined' || variable === null || !variable;
+	return (typeof variable === 'undefined' || variable === null || !variable) && !Number.isInteger(variable);
 };
 
 /**
