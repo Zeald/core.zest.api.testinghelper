@@ -386,6 +386,10 @@ class ProductPage extends Page {
 	 * @returns {Promise<void>}
 	 */
 	async selectOption(optionElement, index) {
+		// scroll to the element
+		await this.scrollTo(optionElement);
+		await this.performSleep();
+
 		const items = await optionElement.findElements(By.css('option'));
 		let selectedItem = null;
 
@@ -400,6 +404,7 @@ class ProductPage extends Page {
 
 		// select the option
 		await selectedItem.click();
+		await this.performSleep();
 
 		// click again to close the options
 		await optionElement.click();
