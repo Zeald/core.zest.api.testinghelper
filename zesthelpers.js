@@ -13,6 +13,7 @@ const Zest4Page = require('./pages/zest4/Page').Page;
 const Zest4ProductPage = require('./pages/zest4/ProductPage').ProductPage;
 const Zest4ReceiptPage = require('./pages/zest4/ReceiptPage').ReceiptPage;
 const Zest4FavouritesPage = require('./pages/zest4/FavouritesPage').FavouritesPage;
+const Zest4SearchResultPage = require('./pages/zest4/SearchResultPage').SearchResultPage;
 
 // Zest 3 Pages
 const Zest3CategoryPage = require('./pages/zest3/CategoryPage').CategoryPage;
@@ -47,6 +48,7 @@ module.exports.Zest4ProductPage = Zest4ProductPage;
 module.exports.Zest4ReceiptPage = Zest4ReceiptPage;
 module.exports.Zest4Page = Zest4Page;
 module.exports.Zest4FavouritesPage = Zest4FavouritesPage;
+module.exports.Zest4SearchResultPage = Zest4SearchResultPage;
 
 // export zest3 pages class
 module.exports.Zest3CategoryPage = Zest3CategoryPage;
