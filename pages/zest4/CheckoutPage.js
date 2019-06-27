@@ -47,7 +47,7 @@ class CheckoutPage extends Page {
 		this._directCreditInputLocator = notDefined(directCreditInputLocator) ?
 			By.xpath("//input[@value='directcredit'][@type='radio']") : directCreditInputLocator;
 		this._placeOrderButtonLocator = notDefined(placeOrderButtonLocator) ?
-			By.xpath("//*[contains(@value, 'Place Order')]") : placeOrderButtonLocator;;
+			By.xpath("//*[contains(@value, 'Place Order')]") : placeOrderButtonLocator;
 	}
 
 	/**

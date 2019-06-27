@@ -65,7 +65,8 @@ class FavouritesPage extends SuperCategoryPage {
 	 * Add a product to favourites.
 	 *
 	 * @param productIndex Index of the product in the list.
-	 * @returns {Promise<T | boolean>}
+	 * @param assert This will dictate if need to execute assert rather returning the result.
+	 * @returns {Promise<*>}
 	 */
 	async removeProductFromFavourites(productIndex, assert) {
 		let productContainer = null;
@@ -105,7 +106,7 @@ class FavouritesPage extends SuperCategoryPage {
 
 	/**
 	 * Remove all propducts in the favourites.
-	 *
+	 * @param assert This will dictate if need to execute assert rather returning the result.
 	 * @returns {Promise<*>}
 	 */
 	async removeAllProductFromFavourites(assert) {
