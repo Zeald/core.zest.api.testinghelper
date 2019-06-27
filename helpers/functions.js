@@ -25,7 +25,7 @@ const pickRandom = (...items) => {
  *
  * @param item1 First item
  * @param item2 Second item
- * @return boolean
+ * @returns {*}
  */
 const isEqual = (item1, item2) => {
 	return _.isEqual(item1, item2);
