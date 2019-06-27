@@ -549,11 +549,12 @@ class SuperCategoryPage extends Page {
 	/**
 	 * Execute product sort.
 	 *
-	 * @param sortIndex Index of the sort option
+	 * @param sortIndex Index of the sort option.
 	 * @param categoryURL categoryURL The URL of the category.
+	 * @param assert This will dictate if need to execute assert rather returning the result.
 	 * @returns {Promise<*>}
 	 */
-	async productSort(sortIndex, categoryURL) {
+	async productSort(sortIndex, categoryURL, assert) {
 		if (!notDefined(categoryURL)) {
 			this._url = categoryURL;
 			await this.open();
@@ -589,7 +590,11 @@ class SuperCategoryPage extends Page {
 		// compare if still exactly the same order
 		const result = await isEqual(productTitlesOriginalOrder, productTitlesNewOrder);
 
-		return await expect(result, 'No ordering happened!').to.be.false;
+		if (assert) {
+			return await expect(result, 'No ordering happened!').to.be.false;
+		}
+
+		return await result;
 	}
 
 	/**
