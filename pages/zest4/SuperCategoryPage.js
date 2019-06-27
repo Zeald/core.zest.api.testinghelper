@@ -398,6 +398,93 @@ class SuperCategoryPage extends Page {
 	}
 
 	/**
+	 * Get all filter groups
+	 *
+	 * @returns {Promise<*|Array|{}|*[]>}
+	 */
+	async getFilterGroups() {
+		return await this._driver.findElements(this._filterGroupLocator);
+	}
+
+	/**
+	 * Apply a filter
+	 *
+	 * @param categoryURL The URL of the category.
+	 * @param filterGroupIndex The index of a chosen filter group.
+	 * @param filterIndex The index of a chosen filter within the filter group.
+	 * @param expectedProductTitles The expected product titles
+	 * @param assert This will dictate if need to execute assert rather returning the result.
+	 * @returns {Promise<*>}
+	 */
+	async applyFilter(categoryURL, filterGroupIndex, filterIndex, expectedProductTitles, assert) {
+		if (!notDefined(categoryURL)) {
+			this._url = categoryURL;
+			await this.open();
+		}
+
+		filterGroupIndex = notDefined(filterGroupIndex) ? 0 : filterGroupIndex;
+		filterIndex = notDefined(filterIndex) ? 0 : filterIndex;
+
+		// wait for ready state
+		await this.waitReadyState();
+
+		const filterGroups = await this.getFilterGroups().then((groups) => groups);
+
+		// pick a filter group
+		const filterGroup = await filterGroups[filterGroupIndex];
+		const filterGroupDisplayed = await filterGroup.isDisplayed().then((displayed) => displayed);
+		const showFilter = await this._driver.findElement(this._showFiltersLocator);
+
+		await this._driver.wait(until.elementIsVisible(showFilter), 3000);
+
+		if (!filterGroupDisplayed) {
+			// use executor to click at this point since there are instances show filter is not clickable
+			await this.executorClick(showFilter);
+			await this.performSleep();
+		}
+
+		// pick a filter to click
+		const filters = await filterGroup.findElements(this._filtersLocator).then((filters) => filters);
+		const filter = await filters[filterIndex];
+
+		// click and check
+		await filter.click();
+		await this.performSleep();
+
+		const closeButton = await this._driver.findElement(this._closeFiltersButtonLocator);
+
+		if (!filterGroupDisplayed) {
+			// close the filter
+			await closeButton.click();
+			await this.performSleep();
+		}
+
+		await this.checkIfProductsExists();
+
+		// check product titles
+		const filterProductTitles = await this.getProductTitles().then((titles) => titles);
+		const result = await isEqual(expectedProductTitles, filterProductTitles);
+
+		// open filter and close uncheck
+		if (!filterGroupDisplayed) {
+			// use executor to click at this point since there are instances show filter is not clickable
+			await this.executorClick(showFilter);
+			await this.performSleep();
+			await filter.click();
+			await this.performSleep();
+			// close the filter
+			await this.executorClick(closeButton);
+			await this.performSleep();
+		}
+
+		if (assert) {
+			return await await expect(result, 'Filtered products did not match to expected!').to.be.true;
+		}
+
+		return await result;
+	}
+
+	/**
 	 * Apply random product filter
 	 *
 	 * @param categoryURL The URL of the category.
@@ -412,7 +499,7 @@ class SuperCategoryPage extends Page {
 		// wait for ready state
 		await this.waitReadyState();
 
-		const filterGroups = await this._driver.findElements(this._filterGroupLocator).then((groups) => groups);
+		const filterGroups = await this.getFilterGroups().then((groups) => groups);
 
 		// pick a filter group
 		const filterGroup = await pickRandom(...filterGroups);
