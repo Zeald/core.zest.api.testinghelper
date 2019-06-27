@@ -1,6 +1,6 @@
 const { By, until } = require('selenium-webdriver');
 const { expect } = require('chai');
-const { notDefined, pickRandom, isEqual } = require('../../helpers/functions');
+const { notDefined, pickRandom } = require('../../helpers/functions');
 const { Page } = require('./Page');
 const { EnquirePage } = require('./EnquirePage');
 
@@ -369,8 +369,8 @@ class ProductPage extends Page {
 		for (let i = 0; i < options.length; i++) {
 			const optionItems = await options[i].findElements(By.css('option')).then((elements) => elements);
 			const totalItems = await optionItems.length;
-			const initialPrice = await this._driver.findElement(this._priceLocator)
-				.getText().then((text) => text.trim());
+			// const initialPrice = await this._driver.findElement(this._priceLocator)
+			// .getText().then((text) => text.trim());
 
 			for (let n = 0; n < totalItems; n++) {
 				await this.selectOption(options[i], n);
