@@ -3,6 +3,7 @@ const { expect } = require('chai');
 const { Page } = require('./Page');
 const { CheckoutPage } = require('./CheckoutPage');
 const { ContactUs } = require('./ContactUs');
+const { SearchResultPage } = require('./SearchResultPage');
 const { notDefined } = require('../../helpers/functions');
 
 /**
@@ -178,10 +179,9 @@ class HomePage extends Page {
 
 		// check if result contains the search term
 		await this._driver.wait(until.elementLocated(this._searchResultLocator), 10000);
-		const searchResultContent = await this._driver.findElement(this._searchResultLocator)
-			.getText().then((text) => text);
-		// result contains the search term
-		return await expect(searchResultContent).to.have.string(term);
+
+		const currentURL = await this._driver.getCurrentUrl().then((url) => url);
+		return await new SearchResultPage(this._driver, currentURL);
 	}
 }
 
