@@ -589,6 +589,7 @@ class SuperCategoryPage extends Page {
 			await this.performSleep();
 		}
 
+		// TODO: Needs to properly check if all products already loaded.
 		await this.performSleep(5000);
 		await this.checkIfProductsExists();
 
@@ -733,6 +734,7 @@ class SuperCategoryPage extends Page {
 		await options[sortIndex].click();
 
 		// put sleep here just to be sure that loader has gone away and products are loaded.
+		// TODO: Needs to properly check if all products already loaded.
 		await this.performSleep(6000);
 
 		// check if there are still products
