@@ -1,6 +1,6 @@
 const axios = require('axios');
 const xmlConverter = require('xml-js');
-const { notDefined } = require('./functions');
+const { notDefined, findString } = require('./functions');
 
 /**
  * Zest API helper class
@@ -12,8 +12,9 @@ class ZestApi {
 	 *
 	 * @param apiBaseURL The base url of the api of the zest site.
 	 * @param apiKey API / Application key
+	 * @param apiEmailLogBaseURL The base url of the email.log.
 	 */
-	constructor(apiBaseURL, apiKey) {
+	constructor({ apiBaseURL, apiKey, apiEmailLogBaseURL }) {
 		if (notDefined(apiBaseURL)) {
 			throw Error('API Base url is undefined or empty!');
 		} else if (apiBaseURL[apiBaseURL.length - 1] !== '/') {
@@ -26,6 +27,7 @@ class ZestApi {
 
 		this._apiBaseURL = apiBaseURL;
 		this._apiKey = apiKey;
+		this._apiEmailLogBaseURL = apiEmailLogBaseURL;
 	}
 
 	/**
@@ -242,6 +244,30 @@ class ZestApi {
 
 				return enquires;
 			}).catch((err) => console.error(err));
+	}
+
+	/**
+	 * Check order acknowledgment email.
+	 *
+	 * @param orderNumber Order number
+	 * @param logName Name of the log file.
+	 * @param tail Last number of lines to retrieve.
+	 * @returns {Promise<AxiosResponse<T>>}
+	 */
+	async checkOrderAcknowledgmentEmail(orderNumber, logName, tail) {
+		return await axios.get(this._apiEmailLogBaseURL, {
+			params: {
+				log: logName,
+				tail: tail
+			}
+		}).then((result) => {
+			// check the presence of thank you phrase and order number
+			const thankYouMessage = 'Thank you for your order #' + orderNumber;
+			return findString(result.data, thankYouMessage);
+		}).catch((err) => {
+			console.error(err);
+			return null;
+		});
 	}
 
 	// eslint-disable-next-line valid-jsdoc
