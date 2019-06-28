@@ -31,7 +31,14 @@ const isEqual = (item1, item2) => {
 	return _.isEqual(item1, item2);
 };
 
+const findString = (data, substring) => {
+	const regexTest = new RegExp(substring);
+	return data.match(regexTest);
+};
+
 module.exports.notDefined = notDefined;
 module.exports.pickRandom = pickRandom;
 module.exports.isEqual = isEqual;
+module.exports.findString = findString;
+
 

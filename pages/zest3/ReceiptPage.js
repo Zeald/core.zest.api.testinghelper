@@ -62,11 +62,29 @@ class ReceiptPage extends Page {
 	 * @returns {Promise<properties.null|{enum}|string>}
 	 */
 	async verifyOrderNumberViaAPI(apiBaseURL, apiKey) {
-		const zestApi = await new ZestApi(apiBaseURL, apiKey);
+		const zestApi = await new ZestApi({ apiBaseURL, apiKey });
 		// get the order number
 		const orderNumber = await this.getOrderNumber().then((orderNumber) => orderNumber);
 		const order = await zestApi.transaction(orderNumber).then((order) => order);
 		return expect(order).to.not.be.null;
+	}
+
+	/**
+	 * Check if there is acknowledgment email entry for the order.
+	 *
+	 * @param apiBaseURL Zest API Base URL
+	 * @param apiKey Zest API Key
+	 * @param apiEmailLogBaseURL The base url of the email.log.
+	 * @returns {Promise<*>}
+	 */
+	async verifyOrderAcknowledgmentEmail(apiBaseURL, apiKey, apiEmailLogBaseURL) {
+		const zestApi = await new ZestApi({ apiBaseURL, apiKey, apiEmailLogBaseURL });
+		// get the order number
+		const orderNumber = await this.getOrderNumber().then((orderNumber) => orderNumber);
+		const matches = await zestApi.checkOrderAcknowledgmentEmail(orderNumber, 'email.log', 20)
+			.then((matches) => matches);
+		const result = await !notDefined(matches) && matches.length > 0;
+		return await expect(result, `No acknowledgment email for order ${orderNumber}`).to.be.true;
 	}
 
 	/**

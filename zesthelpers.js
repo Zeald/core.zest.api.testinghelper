@@ -1,4 +1,4 @@
-const { notDefined, isEqual, pickRandom } = require('./helpers/functions');
+const { notDefined, isEqual, pickRandom, findString } = require('./helpers/functions');
 const { ZestApi } = require('./helpers/ZestApi');
 const { DriverFactory } = require('./helpers/DriverFactory');
 
@@ -29,10 +29,12 @@ const Zest3ReceiptPage = require('./pages/zest3/ReceiptPage').ReceiptPage;
 module.exports.notDefined = notDefined;
 module.exports.isEqual = isEqual;
 module.exports.pickRandom = pickRandom;
+module.exports.findString = findString;
 module.exports.utils = {
 	notDefined,
 	isEqual,
-	pickRandom
+	pickRandom,
+	findString
 };
 module.exports.ZestApi = ZestApi;
 module.exports.DriverFactory = DriverFactory;
