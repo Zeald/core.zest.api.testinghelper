@@ -66,7 +66,7 @@ class ZestApi {
 		if (limit) {
 			options.limit = limit;
 		}
-		return this.search('enquiries', searchParams, options);
+		return this.search('Enquiries', searchParams, options);
 	}
 
 	/**
@@ -232,7 +232,6 @@ class ZestApi {
 		// execute the API request
 		return new Promise(async (resolve, reject) => {
 			try {
-				console.log('executing: ' + util.inspect(config));
 				const result = await axios.request(config);
 
 				// parse & clean the XML response & return a promise
