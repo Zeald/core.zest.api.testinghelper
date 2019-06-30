@@ -85,30 +85,6 @@ class ZestApi {
 	}
 
 	/**
-	 * Check order acknowledgment email.
-	 *
-	 * @param orderNumber Order number
-	 * @param logName Name of the log file.
-	 * @param tail Last number of lines to retrieve.
-	 * @returns {Promise<AxiosResponse<T>>}
-	 */
-	async checkOrderAcknowledgmentEmail(orderNumber, logName, tail) {
-		return await axios.get(this._apiEmailLogBaseURL, {
-			params: {
-				log: logName,
-				tail: tail
-			}
-		}).then((result) => {
-			// check the presence of thank you phrase and order number
-			const thankYouMessage = 'Thank you for your order #' + orderNumber;
-			return findString(result.data, thankYouMessage);
-		}).catch((err) => {
-			console.error(err);
-			return null;
-		});
-	}
-
-	/**
 	 * Retrieve a single record of the specified type
 	 *
 	 * @param {String} apiInterface ZEST API interface (http://developers.zeald.com/doku.php?id=dataapi:start)
