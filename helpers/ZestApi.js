@@ -35,31 +35,53 @@ class ZestApi {
 	 * Get an order
 	 *
 	 * @param {String} orderNumber Order number of the transaction
-	 * @param {Boolean} orderLines include orderlines in the request - default false
-	 * @param {String} status only retrieve order matching this status
+	 * @param {Object} options optional additional configuration
+	 * @param {Boolean} options.lines retrieve orderline data
+	 * @param {Boolean} options.customer retrieve customer data
+	 * @param {Object} options.where additional where filtering - e.g. `{status: 'Pending'}`
 	 * @returns {Promise<any>} a promise resolving to an object of order data
 	 */
-	async order(orderNumber, orderLines = false, status) {
-		const params = {};
-		if (!notDefined(status)) {
-			params.status = status;
-		}
-		let apiInterface = 'Order';
-		if (orderLines) {
-			apiInterface += '+OrderLine';
-		}
-		return this.single(apiInterface, orderNumber, params);
+	async order(orderNumber, options = {}) {
+		const params = {
+			where: options.where
+		};
+
+		// build up related interfaces
+		params.with = this._buildRelated({
+			lines: 'OrderLine',
+			customer: 'Customer'
+		}, options);
+		return this.single('Order', orderNumber, params);
 	}
 
 	/**
-	 * Get the Enquiries
+	 * Retrieve enquiries
 	 *
 	 * @param {Object} searchParams specific fields to search form (aligning to ZEST API)
 	 * @param {Integer} limit optionally limit the amount of enquiries to retrieve
 	 * @returns {Promise<void>} Resolves to an array of objects containing enquiry data
 	 */
 	async enquiries(searchParams = {}, limit = 0) {
-		return this.search('enquiries', searchParams, limit);
+		const options = {};
+		if (limit) {
+			options.limit = limit;
+		}
+		return this.search('enquiries', searchParams, options);
+	}
+
+	/**
+	 * Read a ZEST log file
+	 *
+	 * @param {String} filename name of the log file to read in the `log/` folder
+	 * @param {Integer} tail optional - only retrieve the last `tail` lines
+	 * @returns {Promise<void>} Resolves to an array of objects containing enquiry data
+	 */
+	async readLog(filename, tail=0) {
+		const args = tail ? {
+			log: filename,
+			tail: tail
+		} : filename;
+		return this.call('TestFramework.SeleniumHelper.read_log', args);
 	}
 
 	/**
@@ -91,38 +113,74 @@ class ZestApi {
 	 *
 	 * @param {String} apiInterface ZEST API interface (http://developers.zeald.com/doku.php?id=dataapi:start)
 	 * @param {String} identifier unique key to look up
-	 * @param {Object} params optional additional parameters to pass to further restrict results
+	 * @param {Object} options optional additional parameters for further configuration
+	 * @param {String/Object} options.with a related interface (or array of interfaces) to
+	 *     retrieve along with the order e.g. ['OrderLine', 'Customer']
+	 * @param {Object} options.where optional additional parameters to pass to further restrict results
 	 * @returns {Promise<any>} a promise resolving to an object the requested data
 	 */
-	async single(apiInterface, identifier, params = {}) {
-		return this.search(apiInterface + '/' + identifier, params);
+	async single(apiInterface, identifier, options = {}) {
+		apiInterface = this._buildInterface(apiInterface, options.with);
+		return this.search(apiInterface + '/' + identifier, options.where);
 	}
 
 	/**
 	 * Retrieve all record of the specified type
 	 *
 	 * @param {String} apiInterface ZEST API interface (http://developers.zeald.com/doku.php?id=dataapi:start)
-	 * @param {Object} params optional additional parameters to pass to further restrict results
-	 * @param {Integer} limit optional only retrieve this many records
+	 * @param {Object} where optional additional where parameters to pass to further restrict results
+	 * @param {Object} options additional optional options for further configuration
+	 * @param {Integer} options.limit optional only retrieve this many records
 	 * @returns {Promise<any>} a promise resolving to an object the requested data
 	 */
-	async search(apiInterface, params = {}, limit = 0) {
-		// determine the root element & strip any non word characters (e.g. brackets)
-		const rootElement = apiInterface.split('+')
-			.shift()
-			.replace(/\W/, '');
+	async search(apiInterface, where = {}, options = {}) {
+		// determine the singular of the root element & strip any non word characters (e.g. brackets)
+		const rootElement = this._singular(
+			apiInterface.split(/[\+\/]/)
+				.shift()
+				.replace(/\W/, '')
+		);
 
 		// restrict the number of results if required
-		if (limit) {
-			params._results = limit;
+		if (options.limit) {
+			where._results = options.limit;
 		}
 
 		// retrieve the result & relove to the requested data
 		return new Promise(async (resolve, reject) => {
 			try {
 				// retrieve the requested data
-				const result = await this.request(apiInterface + '/', params);
+				const result = await this.request(apiInterface, where);
 				resolve(result[rootElement]);
+			} catch (error) {
+				reject(order);
+			}
+		});
+	}
+
+	/**
+	 * Call a ZEST API subroutine using the 'Run' API to call exposed classes/routines
+	 * Documented in logic/Controller/API/Run.pm
+	 *
+	 * @param {String} execute Run API exposed class/routine
+	 * @param {Object} args named arguments to pass through to the perl class (received as hashref)
+	 * @return {Mixed} whatever the called method returns
+	 */
+	async call(execute, args) {
+		const xml = xmlConverter.js2xml({
+			Call: {
+				Arg: args
+			}
+		}, {
+			compact: true
+		});
+
+		// retrieve the result & relove to the requested data
+		return new Promise(async (resolve, reject) => {
+			try {
+				// retrieve the requested data
+				const result = await this.request('Run/' + execute, xml, 'post');
+				resolve(result.rsp.result);
 			} catch (error) {
 				reject(order);
 			}
@@ -132,7 +190,7 @@ class ZestApi {
 	/**
 	 * Submit an API request & parse the response
 	 * @param {String} apiInterface ZEST API interface (http://developers.zeald.com/doku.php?id=dataapi:start)
-	 * @param {String|Object} args if `get`, will transform into a querystring. If `post` can be either XML, or key value pairs to build into an XML payload
+	 * @param {String|Object} args if `get`, will transform into a querystring. If `post` expects XML for the payload
 	 * @param {String} method defaults to `get`
 	 * @returns {Object} parsed API response
 	 */
@@ -165,6 +223,8 @@ class ZestApi {
 				}
 				config.params = args;
 			} else {
+				config.headers = config.headers || {};
+				config.headers['Content-Type'] = 'text/xml';
 				config.data = args;
 			}
 		}
@@ -187,6 +247,38 @@ class ZestApi {
 				reject(error);
 			};
 		});
+	}
+
+	/**
+	 * Accept options / settings requesting additional interfaces with readable keys 
+	 * and map them to ZEST API interfaces
+	 * @param {Object} map a mapping of supported readable keys mapping to their associated ZEST API interfaces
+	 * @param {Object} options saying if these readable keys are requested - e.g. lines: true - for an order
+	 * @returns {Array} an array of ZEST API interfaces that have been requested for inclusion
+	 */
+	_buildRelated(map, options) {
+		const related = [];
+		for (const readable in map) {
+			if (options[readable]) {
+				related.push(map[readable]);
+			}
+		}
+		return related;
+	}
+
+	/**
+	 * process an interface & related interfaces into a standard ZEST API interface string
+	 * @param {String} apiInterface ZEST API interface (http://developers.zeald.com/doku.php?id=dataapi:start)
+	 * @param {String/Object} related a related interface (or array of interfaces) to
+	 *     retrieve along with the order e.g. ['OrderLine', 'Customer']
+	 * @returns {String} ZEST API interface e.g. Order+OrderLine+Customer
+	 */
+	_buildInterface(apiInterface, related = []) {
+		if (!Array.isArray(related)) {
+			related = [related];
+		}
+		related.unshift(apiInterface);
+		return related.join('+');
 	}
 
 	/**
@@ -248,6 +340,17 @@ class ZestApi {
 			camel.push(part.charAt(0).toUpperCase() + part.slice(1));
 		}
 		return camel.join('');
+	}
+
+	/**
+	 * Converts a string to its singular form - e.g. Orders = Order, Enquiries = Enquiry
+	 * @param {String} string plural version of string to convert
+	 * @returns {String} singular version of string
+	 */
+	_singular(string) {
+		string = string.replace(/ies$/, 'y');
+		string = string.replace(/s$/, '');
+		return string;
 	}
 
 	/**
