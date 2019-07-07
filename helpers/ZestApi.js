@@ -1,410 +1,340 @@
 const axios = require('axios');
 const xmlConverter = require('xml-js');
 const { notDefined, findString } = require('./functions');
+const util = require('util');
 
 /**
  * Zest API helper class
  *
  */
 class ZestApi {
+	
 	/**
 	 * Constructor
 	 *
-	 * @param apiBaseURL The base url of the api of the zest site.
+	 * @param apiBaseUrl The base url of the zest site API.
 	 * @param apiKey API / Application key
-	 * @param apiEmailLogBaseURL The base url of the email.log.
 	 */
-	constructor({ apiBaseURL, apiKey, apiEmailLogBaseURL }) {
-		if (notDefined(apiBaseURL)) {
-			throw Error('API Base url is undefined or empty!');
-		} else if (apiBaseURL[apiBaseURL.length - 1] !== '/') {
-			throw Error("To void problems base url must end with '/'!");
+	constructor(apiBaseUrl, apiKey) {
+		if (notDefined(apiBaseUrl)) {
+			throw Error('API Site url is: ' + apiBaseUrl + ' - undefined or empty!');
 		}
-
 		if (notDefined(apiKey)) {
 			throw Error('API key is undefined or empty!');
 		}
 
-		this._apiBaseURL = apiBaseURL;
+		// ensure base url ends in a '/'
+		if (apiBaseUrl[apiBaseUrl.length - 1] != '/') {
+			apiBaseUrl += '/';
+		}
+		this._apiBaseURL = apiBaseUrl;
 		this._apiKey = apiKey;
-		this._apiEmailLogBaseURL = apiEmailLogBaseURL;
 	}
 
 	/**
-	 * Set apiBaseURL
+	 * Get an order
 	 *
-	 * @param value The base url of the api of the zest site.
+	 * @param {String} orderNumber Order number of the transaction
+	 * @param {Object} options optional additional configuration
+	 * @param {Boolean} options.lines retrieve orderline data
+	 * @param {Boolean} options.customer retrieve customer data
+	 * @param {Object} options.where additional where filtering - e.g. `{status: 'Pending'}`
+	 * @returns {Promise<any>} a promise resolving to an object of order data
 	 */
-	set apiBaseURL(value) {
-		this._apiBaseURL = value;
-	}
-
-	/**
-	 * Set apiKey
-	 *
-	 * @param value API / Application key
-	 */
-	set apiKey(value) {
-		this._apiKey = value;
-	}
-
-	/**
-	 * Get a transaction
-	 *
-	 * @param orderNumber Order number of the transaction
-	 * @param status Status of the transaction
-	 * @param method HTTP Method
-	 * @returns {Promise<any>}
-	 */
-	async transaction(orderNumber, status, method) {
-		// throw an exception if the base API url or the API key was not set.
-		if (notDefined(this._apiBaseURL)) {
-			throw new Error('API Base url is undefined or empty!');
-		}
-
-		if (notDefined(this._apiKey)) {
-			throw new Error('API key is undefined or empty!');
-		}
-
-		method = notDefined(method) ? 'get' : method;
-		status = notDefined(method) ? 'pending' : status;
-
+	async order(orderNumber, options = {}) {
 		const params = {
-			_key: this._apiKey
+			where: options.where
 		};
 
-		if (!notDefined(status)) {
-			params.status = status;
+		// build up related interfaces
+		params.with = this._buildRelated({
+			lines: 'OrderLine',
+			customer: 'Customer'
+		}, options);
+		return this.single('Order', orderNumber, params);
+	}
+
+	/**
+	 * Retrieve enquiries
+	 *
+	 * @param {Object} searchParams specific fields to search form (aligning to ZEST API)
+	 * @param {Integer} limit optionally limit the amount of enquiries to retrieve
+	 * @returns {Promise<void>} Resolves to an array of objects containing enquiry data
+	 */
+	async enquiries(searchParams = {}, limit = 0) {
+		const options = {};
+		if (limit) {
+			options.limit = limit;
+		}
+		return this.search('Enquiries', searchParams, options);
+	}
+
+	/**
+	 * Read a ZEST log file
+	 *
+	 * @param {String} filename name of the log file to read in the `log/` folder
+	 * @param {Integer} tail optional - only retrieve the last `tail` lines
+	 * @returns {Promise<void>} Resolves to an array of objects containing enquiry data
+	 */
+	async readLog(filename, tail=0) {
+		const args = tail ? {
+			log: filename,
+			tail: tail
+		} : filename;
+		return this.call('TestFramework.SeleniumHelper.read_log', args);
+	}
+
+	/**
+	 * Retrieve a single record of the specified type
+	 *
+	 * @param {String} apiInterface ZEST API interface (http://developers.zeald.com/doku.php?id=dataapi:start)
+	 * @param {String} identifier unique key to look up
+	 * @param {Object} options optional additional parameters for further configuration
+	 * @param {String/Object} options.with a related interface (or array of interfaces) to
+	 *     retrieve along with the order e.g. ['OrderLine', 'Customer']
+	 * @param {Object} options.where optional additional parameters to pass to further restrict results
+	 * @returns {Promise<any>} a promise resolving to an object the requested data
+	 */
+	async single(apiInterface, identifier, options = {}) {
+		apiInterface = this._buildInterface(apiInterface, options.with);
+		return this.search(apiInterface + '/' + identifier, options.where);
+	}
+
+	/**
+	 * Retrieve all record of the specified type
+	 *
+	 * @param {String} apiInterface ZEST API interface (http://developers.zeald.com/doku.php?id=dataapi:start)
+	 * @param {Object} where optional additional where parameters to pass to further restrict results
+	 * @param {Object} options additional optional options for further configuration
+	 * @param {Integer} options.limit optional only retrieve this many records
+	 * @returns {Promise<any>} a promise resolving to an object the requested data
+	 */
+	async search(apiInterface, where = {}, options = {}) {
+		// determine the singular of the root element & strip any non word characters (e.g. brackets)
+		const rootElement = this._singular(
+			apiInterface.split(/[\+\/]/)
+				.shift()
+				.replace(/\W/, '')
+		);
+
+		// restrict the number of results if required
+		if (options.limit) {
+			where._results = options.limit;
 		}
 
-		params.order_number = orderNumber;
-
-		const order = await axios[method](this._apiBaseURL+'Transactions', { params: params }).then((result) => {
-			const data = xmlConverter.xml2json(result.data, {
-				compact: true,
-				spaces: 4,
-				ignoreComment: true
-			});
-
-			const orderResult = JSON.parse(data).ResultSet.Order;
-			let order = null;
-
-			if (!notDefined(orderResult)) {
-				order = ZestApi._extractTransactionData(orderResult);
+		// retrieve the result & relove to the requested data
+		return new Promise(async (resolve, reject) => {
+			try {
+				// retrieve the requested data
+				const result = await this.request(apiInterface, where);
+				resolve(result[rootElement]);
+			} catch (error) {
+				reject(order);
 			}
-
-			return order;
-		}).catch((err) => {
-			console.error(err);
-			return err;
-		});
-
-		return await new Promise((resolve, reject) => {
-			if (order instanceof Error) {
-				return reject(order);
-			}
-
-			return resolve(order);
 		});
 	}
 
 	/**
-	 * Get the order Lines
+	 * Call a ZEST API subroutine using the 'Run' API to call exposed classes/routines
+	 * Documented in logic/Controller/API/Run.pm
 	 *
-	 * @param orderNumber Order number of the order
-	 * @param sku Ordered product sku
-	 * @param status Status of the order
-	 * @param method HTTP Method
-	 * @returns {Promise<any>}
+	 * @param {String} execute Run API exposed class/routine
+	 * @param {Object} args named arguments to pass through to the perl class (received as hashref)
+	 * @return {Mixed} whatever the called method returns
 	 */
-	async orderLines(orderNumber, sku, status, method) {
-		// throw an exception if the base API url or the API key was not set.
-		if (notDefined(this._apiBaseURL)) {
-			throw new Error('API Base url is undefined or empty!');
+	async call(execute, args) {
+		const xml = xmlConverter.js2xml({
+			Call: {
+				Arg: args
+			}
+		}, {
+			compact: true
+		});
+
+		// retrieve the result & relove to the requested data
+		return new Promise(async (resolve, reject) => {
+			try {
+				// retrieve the requested data
+				const result = await this.request('Run/' + execute, xml, 'post');
+				resolve(result.rsp.result);
+			} catch (error) {
+				reject(order);
+			}
+		});
+	}
+
+	/**
+	 * Submit an API request & parse the response
+	 * @param {String} apiInterface ZEST API interface (http://developers.zeald.com/doku.php?id=dataapi:start)
+	 * @param {String|Object} args if `get`, will transform into a querystring. If `post` expects XML for the payload
+	 * @param {String} method defaults to `get`
+	 * @returns {Object} parsed API response
+	 */
+	async request(apiInterface, args, method) {
+		// ensure method is supported
+		const supported = ['get', 'post', 'put', 'delete'];
+		method = notDefined(method) ? '' : method;
+		method = method.toLowerCase();
+		if (!supported.includes(method)) {
+			method = 'get';
 		}
 
-		if (notDefined(this._apiKey)) {
-			throw new Error('API key is undefined or empty!');
-		}
+		// build the main axios request options
+		const apiAddress = this._apiBaseURL + apiInterface;
+		const config = {
+			url: apiAddress,
+			method: method,
 
-		method = notDefined(method) ? 'get' : method;
-		status = notDefined(method) ? 'pending' : status;
-
-		const params = {
-			_key: this._apiKey
+			// ZEST api authentication passes the api key as a HTTP AUTH username
+			auth: {
+				username: this._apiKey
+			}
 		};
 
-		if (!notDefined(orderNumber)) {
-			params.order_number = orderNumber;
-		}
-
-		if (!notDefined(status)) {
-			params.status = status;
-		}
-
-		if (!notDefined(sku)) {
-			params.sku = sku;
-		}
-
-		const orders = await axios[method](this._apiBaseURL+'OrderLine', { params: params }).then((result) => {
-			const data = xmlConverter.xml2json(result.data, {
-				compact: true,
-				spaces: 4,
-				ignoreComment: true
-			});
-
-			const orderLineResult = JSON.parse(data).ResultSet.OrderLine;
-
-			// simplify the enquiry objects
-			const orderLines = [];
-
-			if (!notDefined(orderLineResult)) {
-				if (Array.isArray(orderLineResult)) {
-					orderLineResult.forEach((result) => {
-						orderLines.push(ZestApi._extractOrderLineData(result));
-					});
-				} else {
-					orderLines.push(ZestApi._extractOrderLineData(orderLineResult));
+		// prepare querystring parameters for get/delete
+		if (!notDefined(args)) {
+			if (['get', 'delete'].includes(method)) {
+				if (typeof args != 'object') {
+					throw new Error('API Request: Args for a GET request must be key-value pairs');
 				}
+				config.params = args;
+			} else {
+				config.headers = config.headers || {};
+				config.headers['Content-Type'] = 'text/xml';
+				config.data = args;
 			}
-
-			return orderLines;
-		}).catch((err) => {
-			console.error(err);
-			return err;
-		});
-
-		return await new Promise((resolve, reject) => {
-			if (orders instanceof Error) {
-				return reject(orders);
-			}
-
-			return resolve(orders);
-		});
-	}
-
-	/**
-	 * Get the Enquiries
-	 *
-	 * @param subject Subject of the enquiry
-	 * @param enquiry Enquiry text
-	 * @param status Status of the enquiry
-	 * @param method HTTP method
-	 * @returns {Promise<void>}
-	 */
-	async enquiries(subject, enquiry, status, method) {
-		// throw an exception if the base API url or the API key was not set.
-		if (notDefined(this._apiBaseURL)) {
-			throw new Error('API Base url is undefined or empty!');
 		}
 
-		if (notDefined(this._apiKey)) {
-			throw new Error('API key is undefined or empty!');
-		}
+		// execute the API request
+		return new Promise(async (resolve, reject) => {
+			try {
+				const result = await axios.request(config);
 
-		method = notDefined(method) ? 'get' : method;
-		status = notDefined(method) ? 'pending' : status;
-
-		const params = {
-			_key: this._apiKey
-		};
-
-		if (!notDefined(status)) {
-			params.status = status;
-		}
-
-		if (!notDefined(subject)) {
-			params.subject = subject;
-		}
-
-		if (!notDefined(enquiry)) {
-			params.enquiry = enquiry;
-		}
-
-		return await axios[method](this._apiBaseURL+'Enquiries', { params: params })
-			.then((result) => {
-				const data = xmlConverter.xml2json(result.data, {
+				// parse & clean the XML response & return a promise
+				let parsed = xmlConverter.xml2js(result.data, {
 					compact: true,
-					spaces: 4,
 					ignoreComment: true
 				});
-
-				const enquiryResult = JSON.parse(data).ResultSet.Enquiry;
-
-				// simplify the enquiry objects
-				const enquires = [];
-
-				if (Array.isArray(enquiryResult)) {
-					enquiryResult.forEach((result) => {
-						enquires.push(ZestApi._extractEnquiryData(result));
-					});
-				} else {
-					enquires.push(ZestApi._extractEnquiryData(enquiryResult));
-				}
-
-				return enquires;
-			}).catch((err) => console.error(err));
-	}
-
-	/**
-	 * Check order acknowledgment email.
-	 *
-	 * @param orderNumber Order number
-	 * @param logName Name of the log file.
-	 * @param tail Last number of lines to retrieve.
-	 * @returns {Promise<AxiosResponse<T>>}
-	 */
-	async checkOrderAcknowledgmentEmail(orderNumber, logName, tail) {
-		return await axios.get(this._apiEmailLogBaseURL, {
-			params: {
-				log: logName,
-				tail: tail
-			}
-		}).then((result) => {
-			// check the presence of thank you phrase and order number
-			const thankYouMessage = 'Thank you for your order #' + orderNumber;
-			return findString(result.data, thankYouMessage);
-		}).catch((err) => {
-			console.error(err);
-			return null;
+				parsed = this._cleanData(parsed.ResultSet || parsed);
+				resolve(parsed);
+			} catch (error) {
+				console.error('Error executing API request: ' + apiAddress + '. ' + error);
+				reject(error);
+			};
 		});
 	}
 
-	// eslint-disable-next-line valid-jsdoc
 	/**
-	 * Helper function that extracts text from the enquiry response
-	 *
-	 * @param result The enquiry result object
-	 * @returns {{firstName: string | number | string,
-	 * lastName: string | number | string,
-	 * code: string | number | string,
-	 * deleted: string | number | string,
-	 * enquiryDate: string | number | string,
-	 * subject: string | number | string,
-	 * enquiry: string | number | string,
-	 * complete: string | number | string,
-	 * sku: string | number | string,
-	 * email: string | number | string,
-	 * status: string | number | string,
-	 * username: string | number | string}}
+	 * Accept options / settings requesting additional interfaces with readable keys 
+	 * and map them to ZEST API interfaces
+	 * @param {Object} map a mapping of supported readable keys mapping to their associated ZEST API interfaces
+	 * @param {Object} options saying if these readable keys are requested - e.g. lines: true - for an order
+	 * @returns {Array} an array of ZEST API interfaces that have been requested for inclusion
 	 */
-	static _extractEnquiryData(result) {
-		return {
-			code: result.code._text,
-			complete: result.complete._text,
-			deleted: result.deleted._text,
-			email: result.email._text,
-			enquiry: result.enquiry._text,
-			enquiryDate: result.enquiry_date._text,
-			firstName: result.fname._text,
-			lastName: result.lname._text,
-			sku: result.sku._text,
-			status: result.status._text,
-			subject: result.subject._text,
-			username: result.username._text
-		};
+	_buildRelated(map, options) {
+		const related = [];
+		for (const readable in map) {
+			if (options[readable]) {
+				related.push(map[readable]);
+			}
+		}
+		return related;
 	}
 
-	// eslint-disable-next-line valid-jsdoc
 	/**
-	 * Helper function that extracts text from the order line response
-	 *
-	 * @param result
-	 * @returns {{shippingTracking: string | string | number,
-	 * updateDate: string | string | number,
-	 * code: string | string | number,
-	 * orderNumber: string | string | number,
-	 * quantity: string | string | number,
-	 * subtotalNumeric: string | string | number,
-	 * description: string | string | number,
-	 * shippingProvider: string | string | number,
-	 * price: string | string | number,
-	 * subtotal: string | string | number,
-	 * options: string | string | number,
-	 * subtotalConvertedDefaultCurrency: string | string | number,
-	 * sku: string | string | number,
-	 * orderDate: string | string | number,
-	 * status: string | string | number}}
-	 * @private
+	 * process an interface & related interfaces into a standard ZEST API interface string
+	 * @param {String} apiInterface ZEST API interface (http://developers.zeald.com/doku.php?id=dataapi:start)
+	 * @param {String/Object} related a related interface (or array of interfaces) to
+	 *     retrieve along with the order e.g. ['OrderLine', 'Customer']
+	 * @returns {String} ZEST API interface e.g. Order+OrderLine+Customer
 	 */
-	static _extractOrderLineData(result) {
-		return {
-			code: result.code._text,
-			description: result.description._text,
-			options: result.options._text,
-			orderDate: result.order_date._text,
-			orderNumber: result.order_number._text,
-			price: result.price._text,
-			quantity: result.quantity._text,
-			shippingProvider: result.shipping_provider._text,
-			shippingTracking: result.shipping_tracking._text,
-			sku: result.sku._text,
-			status: result.status._text,
-			subtotal: result.subtotal._text,
-			subtotalConvertedDefaultCurrency: result.subtotal_converted_default_currency._text,
-			subtotalNumeric: result.subtotal_numeric._text,
-			updateDate: result.update_date._text
-		};
+	_buildInterface(apiInterface, related = []) {
+		if (!Array.isArray(related)) {
+			related = [related];
+		}
+		related.unshift(apiInterface);
+		return related.join('+');
 	}
 
-	// eslint-disable-next-line valid-jsdoc
 	/**
-	 * Helper function that extracts text from the transactions response
-	 *
-	 * @param result
-	 * @returns {{customerState: string | string | number,
-	 * updateDate: string | string | number,
-	 * customerZip: string | string | number,
-	 * orderNumber: string | string | number,
-	 * orderId: string | string | number,
-	 * subtotalNumeric: string | string | number,
-	 * customerCity: string | string | number,
-	 * subTotal: string | string | number,
-	 * userName: string | string | number,
-	 * customerCountry: string | string | number,
-	 * totalNumeric: string | string | number,
-	 * totalConvertedDefaultCurrency: string | string | number,
-	 * customerPhone: string | string | number,
-	 * customerFirstName: string | string | number,
-	 * customerEmail: string | string | number,
-	 * customerCompany: string | string | number,
-	 * paymentMethod: string | string | number,
-	 * customerAddress1: string | string | number,
-	 * customerLastName: string | string | number,
-	 * subtotalConvertedDefaultCurrency: string | string | number,
-	 * customerAddress2: string | string | number,
-	 * orderDate: string | string | number,
-	 * totalCost: string | string | number,
-	 * status: string | string | number}}
-	 * @private
+	 * cleans API data, converting it into a normal object
+	 * @param {Object} data api request result from xml-js conversion
+	 * @param {Integer} count used internally by the method to prevent recursive loops
+	 * @returns {Object} cleaned api data
 	 */
-	static _extractTransactionData(result) {
-		return {
-			customerAddress1: result.b_address1._text,
-			customerAddress2: result.b_address2._text,
-			customerCity: result.b_city._text,
-			customerCompany: result.b_company._text,
-			customerCountry: result.b_country._text,
-			customerFirstName: result.b_fname._text,
-			customerLastName: result.b_lname._text,
-			customerPhone: result.b_phone._text,
-			customerState: result.b_state._text,
-			customerZip: result.b_zip._text,
-			customerEmail: result.email._text,
-			orderId: result.order_id._text,
-			orderDate: result.order_date._text,
-			orderNumber: result.order_number._text,
-			paymentMethod: result.payment_method._text,
-			status: result.status._text,
-			subTotal: result.subtotal._text,
-			subtotalConvertedDefaultCurrency: result.subtotal_converted_default_currency._text,
-			subtotalNumeric: result.subtotal_numeric._text,
-			totalConvertedDefaultCurrency: result.total_converted_default_currency._text,
-			totalCost: result.total_cost._text,
-			totalNumeric: result.total_numeric._text,
-			updateDate: result.update_date._text,
-			userName: result.username._text
-		};
+	_cleanData(data, count) {
+		if (count > 20) {
+			throw new Error('Recursion loop detected while attempting to clean data: ' + util.inspect(data));
+		}
+
+		// if we received an array, loop through the data & clean it
+		if (Array.isArray(data)) {
+			const clean = [];
+			data.forEach((current) => {
+				clean.push(this._cleanData(current, count+1));
+			})
+			return clean;
+
+		// for objects, check if it has a _text property
+		// if so retrieve it, otherwise it must be a genuine
+		// object so loop over each property & clean it
+		} else if(typeof data === 'object') {
+			if (data._text) {
+				return data._text;
+			}
+			const clean = {};
+			for (let key in data) {
+
+				// strip attributes
+				if (key == '_attributes') {
+					continue;
+				}
+				clean[this._snakeToCamel(key)] = this._cleanData(data[key], count+1);
+			}
+			return clean;
+		}
+
+		// must be standard data type so just return it
+		return data;
+	}
+
+	/**
+	 * Convert a string from snake_case to camelCase
+	 * @param {String} string covert this string from snake_case to camelCase
+	 * @returns {String} camelCase result
+	 */
+	_snakeToCamel(string) {
+		const parts = string.split('_');
+		const camel = [
+			parts.shift()
+		];
+
+		// loop through each part & uppercase the first letter, rejoining without the underscores
+		while (parts.length) {
+			const part = parts.shift();
+			camel.push(part.charAt(0).toUpperCase() + part.slice(1));
+		}
+		return camel.join('');
+	}
+
+	/**
+	 * Converts a string to its singular form - e.g. Orders = Order, Enquiries = Enquiry
+	 * @param {String} string plural version of string to convert
+	 * @returns {String} singular version of string
+	 */
+	_singular(string) {
+		string = string.replace(/ies$/, 'y');
+		string = string.replace(/s$/, '');
+		return string;
+	}
+
+	/**
+	 * Shortcut to util.inspect with custom args
+	 * @param {Mixed} data
+	 * @return {String} inspected data
+	 */
+	inspect(data) {
+		return util.inspect(data, false, 4);
 	}
 }
 
