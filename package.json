@@ -4,7 +4,7 @@
   "description": "Zest API class helper",
   "main": "zesthelpers.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run eslint-pages && npm run eslint-helpers && npm run eslint-root",
     "driver": "node_modules/.bin/mocha demos/driverTest.js --timeout 120000",
     "eslint": "npm run eslint-pages && npm run eslint-helpers && npm run eslint-root",
     "eslint-pages": "./node_modules/.bin/eslint pages/**/*.js",
