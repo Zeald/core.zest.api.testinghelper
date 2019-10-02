@@ -1,10 +1,10 @@
 {
   "name": "zest-api-testinghelper",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "Zest API class helper",
   "main": "zesthelpers.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run eslint-pages && npm run eslint-helpers && npm run eslint-root",
     "driver": "node_modules/.bin/mocha demos/driverTest.js --timeout 120000",
     "eslint": "npm run eslint-pages && npm run eslint-helpers && npm run eslint-root",
     "eslint-pages": "./node_modules/.bin/eslint pages/**/*.js",
@@ -14,12 +14,12 @@
   "dependencies": {
     "axios": "^0.19.0",
     "chai": "^4.1.2",
-    "chromedriver": "^75.0.0",
+    "chromedriver": "^77.0.0",
     "dotenv": "^8.0.0",
-    "geckodriver": "^1.16.2",
+    "geckodriver": "^1.18.0",
     "mocha": "^6.1.4",
     "reverse-md5": "0.0.4",
-    "selenium-webdriver": "^4.0.0-alpha.1",
+    "selenium-webdriver": "^4.0.0-alpha.5",
     "underscore": "^1.9.1",
     "xml-js": "^1.6.11"
   },
