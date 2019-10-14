@@ -591,7 +591,6 @@ class SuperCategoryPage extends Page {
 
 		// TODO: Needs to properly check if all products already loaded.
 		await this.performSleep(5000);
-		await this.checkIfProductsExists();
 
 		// get the new products list if there's any
 		const nextPageProductTitles = await this.getProductTitles().then((titles) => titles);
@@ -644,10 +643,7 @@ class SuperCategoryPage extends Page {
 		// click the page
 		await page.click();
 
-		await this.performSleep();
-
-		// verify if there are products
-		await this.checkIfProductsExists();
+		await this.performSleep(5000);
 
 		const currentTitles = await this.getProductTitles().then((titles) => titles);
 		const result = isEqual(currentTitles, expectedTitles);
