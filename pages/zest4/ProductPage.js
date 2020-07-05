@@ -33,7 +33,7 @@ class ProductPage extends Page {
 
 		// initialize locators if not defined
 		this._addToCartButtonLocator = notDefined(addToCartButtonLocator) ?
-			By.xpath("//button[contains(text(),'Add to cart')]") : addToCartButtonLocator;
+			By.xpath("//button[contains(text(),'Buy Now')]") : addToCartButtonLocator;
 		this._enquireButtonSelector = notDefined(enquireButtonSelector) ?
 			By.xpath("//a[@class='zbtn' and contains(@href,'enquiry')]") : enquireButtonSelector;
 		this._productOptionLocator = notDefined(productOptionLocator) ?
