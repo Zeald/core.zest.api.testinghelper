@@ -30,10 +30,12 @@ class ReceiptPage extends Page {
 	/**
 	 * Verify receipt page
 	 *
+	 * @param endingPageSegment Custom ending page segment.
 	 * @returns {Promise<*>}
 	 */
-	async verifyReceiptPage() {
-		return await expect(this._url).to.match(/receipt\.html/);
+	async verifyReceiptPage(endingPageSegment = 's.html#finish') {
+		const regexExp = new RegExp(endingPageSegment, 'g');
+		return await expect(this._url).to.match(regexExp);
 	}
 
 	/**
