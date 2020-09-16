@@ -1,6 +1,6 @@
 {
   "name": "zest-api-testinghelper",
-  "version": "1.3.9",
+  "version": "1.4.0",
   "description": "Zest API class helper",
   "main": "zesthelpers.js",
   "scripts": {
@@ -12,15 +12,15 @@
     "eslint-root": "./node_modules/.bin/eslint *.js"
   },
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.19.2",
     "chai": "^4.1.2",
-    "chromedriver": "^83.0.0",
-    "dotenv": "^8.0.0",
-    "geckodriver": "^1.19.1",
-    "mocha": "^6.1.4",
+    "chromedriver": "^85.0.1",
+    "dotenv": "^8.2.0",
+    "geckodriver": "^1.20.0",
+    "mocha": "^6.2.3",
     "reverse-md5": "0.0.4",
     "selenium-webdriver": "^4.0.0-alpha.7",
-    "underscore": "^1.9.1",
+    "underscore": "^1.11.0",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
