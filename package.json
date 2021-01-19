@@ -12,7 +12,7 @@
     "eslint-root": "./node_modules/.bin/eslint *.js"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "chai": "^4.1.2",
     "chromedriver": "^85.0.1",
     "dotenv": "^8.2.0",
